@@ -1,8 +1,8 @@
 import * as SplashScreen from "expo-splash-screen";
 import React, { useCallback, useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import { View } from "react-native";
-import { Welcome } from "./src/screens";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Navigation } from "./src/navigation";
 
 export default function App(): JSX.Element | null {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -29,8 +29,8 @@ export default function App(): JSX.Element | null {
   }
 
   return (
-    <View onLayout={onLayoutRootView}>
-      <Welcome />
-    </View>
+    <SafeAreaProvider onLayout={onLayoutRootView}>
+      <Navigation />
+    </SafeAreaProvider>
   );
 }
