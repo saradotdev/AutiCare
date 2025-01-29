@@ -10,13 +10,10 @@ import theme from "../../../theme";
 import styles from "./index.styles";
 
 const welcomeBg = require("../../assets/images/Welcome.png");
-type WelcomeScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Welcome"
->;
+type WelcomeNavigationProp = StackNavigationProp<RootStackParamList, "Welcome">;
 
 export default function Welcome() {
-  const navigation = useNavigation<WelcomeScreenNavigationProp>();
+  const navigation = useNavigation<WelcomeNavigationProp>();
 
   return (
     <ImageBackground source={welcomeBg} style={styles.container}>

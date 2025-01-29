@@ -1,0 +1,36 @@
+import React from "react";
+import { TouchableOpacity, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+
+interface IconButtonProps {
+  iconName: keyof typeof MaterialIcons.glyphMap;
+  iconColor?: string;
+  iconSize?: number;
+  backgroundColor?: string;
+  onPress?: () => void;
+}
+
+export default function IconButton({
+  iconName,
+  iconColor,
+  iconSize,
+  backgroundColor,
+  onPress,
+}: IconButtonProps) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          alignContent: "center",
+          justifyContent: "center",
+          backgroundColor: backgroundColor,
+          borderRadius: 50,
+        }}
+      >
+        <MaterialIcons name={iconName} size={iconSize} color={iconColor} />
+      </View>
+    </TouchableOpacity>
+  );
+}
