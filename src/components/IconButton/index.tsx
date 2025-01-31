@@ -1,14 +1,7 @@
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
+import { IconButtonProps } from "../../types";
 import { MaterialIcons } from "@expo/vector-icons";
-
-interface IconButtonProps {
-  iconName: keyof typeof MaterialIcons.glyphMap;
-  iconColor?: string;
-  iconSize?: number;
-  backgroundColor?: string;
-  onPress?: () => void;
-}
 
 export default function IconButton({
   iconName,

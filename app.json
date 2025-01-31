@@ -24,11 +24,7 @@
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-router"
-    ]
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-router"]
   }
 }

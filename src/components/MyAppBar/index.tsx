@@ -4,10 +4,7 @@ import { MyText } from "../MyText";
 import { useNavigation } from "@react-navigation/native";
 import theme from "../../../theme";
 import IconButton from "../IconButton";
-
-interface MyAppBarProps {
-  title: string;
-}
+import { MyAppBarProps } from "../../types";
 
 export default function MyAppBar({ title }: MyAppBarProps) {
   const navigation = useNavigation();

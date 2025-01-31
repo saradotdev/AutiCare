@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { TextInput, View, StyleSheet } from "react-native";
 import theme from "../../../theme";
 import { MyText } from "../MyText";
-
-interface MyInputProps {
-  label: string;
-  placeholder: string;
-}
+import { MyInputProps } from "../../types";
 
 export default function MyInput({ label, placeholder }: MyInputProps) {
   const [text, setText] = useState("");

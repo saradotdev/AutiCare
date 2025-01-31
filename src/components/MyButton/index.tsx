@@ -1,10 +1,7 @@
 import React from "react";
 import { MyText } from "../MyText";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
-
-interface MyButtonProps extends TouchableOpacityProps {
-  children: React.ReactNode;
-}
+import { TouchableOpacity } from "react-native";
+import { MyButtonProps } from "../../types";
 
 export const MyButton: React.FC<MyButtonProps> = ({
   style,
