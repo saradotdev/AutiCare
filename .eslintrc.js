@@ -3,7 +3,7 @@ module.exports = {
   extends: ["expo", "prettier"],
   plugins: ["prettier", "react-native"],
   rules: {
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", { endOfLine: "crlf" }],
     "react-native/no-unused-styles": "error",
   },
 };

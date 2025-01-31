@@ -1,10 +1,7 @@
 import React from "react";
-import { Text, TextProps } from "react-native";
+import { Text } from "react-native";
 import theme from "../../../theme";
-
-interface MyTextProps extends TextProps {
-  children: React.ReactNode;
-}
+import { MyTextProps } from "../../types";
 
 export const MyText: React.FC<MyTextProps> = ({
   style,
