@@ -10,6 +10,7 @@ export interface MyTextProps extends TextProps {
 }
 
 export interface MyButtonProps extends TouchableOpacityProps {
+  textColor?: string;
   children: React.ReactNode;
 }
 

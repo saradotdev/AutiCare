@@ -1,24 +1,32 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { IconButton, MyInput, MyText } from "../../components";
+import { MyButton, MyInput, MyText } from "../../components";
 import theme from "../../../theme";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../navigation";
+
+type InputPasswordNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "InputEmail"
+>;
 
 export default function InputEmail() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<InputPasswordNavigationProp>();
 
   return (
     <View>
       <MyText style={styles.main}>Create a password</MyText>
+      <MyText style={styles.sub}>Enter 8 or more characters</MyText>
       <MyInput label="Password" placeholder="********" />
-      <View style={styles.forwardButton}>
-        <IconButton
-          iconName="arrow-forward"
-          iconSize={36}
-          iconColor={theme.colorWhite}
-          backgroundColor={theme.colorSummerSky}
-          onPress={() => navigation.goBack()}
-        />
+      <View style={{ alignItems: "center" }}>
+        <MyButton
+          textColor={theme.colorWhite}
+          style={styles.cta}
+          onPress={() => navigation.navigate("ChildTest")}
+        >
+          Done
+        </MyButton>
       </View>
     </View>
   );
@@ -28,10 +36,17 @@ const styles = StyleSheet.create({
   main: {
     fontSize: 28,
     marginHorizontal: 16,
-    marginVertical: 30,
+    marginTop: 30,
   },
-  forwardButton: {
-    alignItems: "flex-end",
-    margin: 16,
+  sub: {
+    color: theme.colorGrey,
+    marginTop: 5,
+    marginBottom: 30,
+    marginHorizontal: 16,
+  },
+  cta: {
+    backgroundColor: theme.colorSummerSky,
+    marginTop: 20,
+    width: 100,
   },
 });

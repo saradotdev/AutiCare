@@ -16,7 +16,7 @@ export default function MyAppBar({ title }: MyAppBarProps) {
         iconName="keyboard-arrow-left"
         iconSize={36}
         iconColor={theme.colorSummerSky}
-        backgroundColor={theme.colorLightGrey}
+        backgroundColor={theme.colorSoftGrey}
         onPress={() => navigation.goBack()}
       />
 
@@ -35,10 +35,10 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colorLightGrey,
+    borderBottomColor: theme.colorSoftGrey,
   },
   title: {
-    color: theme.colorGrey,
+    color: theme.colorDarkGrey,
     textAlign: "center",
     fontSize: 24,
     flex: 1,

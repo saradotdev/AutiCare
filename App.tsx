@@ -8,6 +8,7 @@ export default function App(): JSX.Element | null {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const [fontsLoaded] = useFonts({
     IBrand: require("./src/assets/fonts/ibrand.otf"),
+    PoppinsRegular: require("./src/assets/fonts/Poppins-Regular.ttf"),
   });
 
   useEffect(() => {
