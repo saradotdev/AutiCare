@@ -6,6 +6,7 @@ const theme = {
   colorBlack: "rgba(0, 0, 0, 1)",
   colorGrey: "rgba(30, 30, 30, 0.55)",
   colorSoftGrey: "rgba(229, 229, 229, 1)",
+  colorSmokeGrey: "rgba(0, 0, 0, 0.55)",
   colorDarkGrey: "rgba(30, 30, 30, 0.75)",
 
   // Fonts
