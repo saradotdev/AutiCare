@@ -24,19 +24,20 @@ export default function MyInput({ label, placeholder }: MyInputProps) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
+    marginVertical: 16,
   },
   label: {
     color: theme.colorSummerSky,
     fontSize: 16,
   },
   input: {
-    height: 50,
+    height: 40,
     borderBottomColor: theme.colorSummerSky,
     borderBottomWidth: 1,
     paddingHorizontal: 0,
     paddingVertical: 0,
     fontSize: 12,
-    color: "rgba(30, 30, 30, 0.75)",
+    color: theme.colorDarkGrey,
     fontFamily: theme.poppinsRegular,
   },
 });

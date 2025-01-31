@@ -1,14 +1,14 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { MyButton, MyInput, MyText } from "../../components";
+import { MyAppBar, MyButton, MyInput, MyText } from "../../components";
 import theme from "../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation";
 
 type InputPasswordNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "InputEmail"
+  "InputPassword"
 >;
 
 export default function InputEmail() {
@@ -16,6 +16,7 @@ export default function InputEmail() {
 
   return (
     <View>
+      <MyAppBar title="Register with E-mail" />
       <MyText style={styles.main}>Create a password</MyText>
       <MyText style={styles.sub}>Enter 8 or more characters</MyText>
       <MyInput label="Password" placeholder="********" />
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
   },
   cta: {
     backgroundColor: theme.colorSummerSky,
-    marginTop: 20,
+    marginTop: 10,
     width: 100,
   },
 });

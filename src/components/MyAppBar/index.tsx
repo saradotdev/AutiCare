@@ -5,13 +5,18 @@ import { useNavigation } from "@react-navigation/native";
 import theme from "../../../theme";
 import IconButton from "../IconButton";
 import { MyAppBarProps } from "../../types";
+import { MyButton } from "../MyButton";
 
-export default function MyAppBar({ title }: MyAppBarProps) {
+export default function MyAppBar({
+  title,
+  rightAction,
+  rightActionOnPress,
+}: MyAppBarProps) {
   const navigation = useNavigation();
 
   return (
     <View style={styles.header}>
-      {/* Left Icon */}
+      {/* Left Action */}
       <IconButton
         iconName="keyboard-arrow-left"
         iconSize={36}
@@ -22,6 +27,19 @@ export default function MyAppBar({ title }: MyAppBarProps) {
 
       {/* Title */}
       <MyText style={styles.title}>{title}</MyText>
+
+      {/* Right Action */}
+      <MyButton
+        textColor={theme.colorSummerSky}
+        style={styles.rightAction}
+        onPress={() => {
+          if (rightActionOnPress) {
+            navigation.navigate(rightActionOnPress as never);
+          }
+        }}
+      >
+        {rightAction}
+      </MyButton>
     </View>
   );
 }
@@ -33,7 +51,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingTop: 35,
     paddingBottom: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: theme.colorSoftGrey,
   },
@@ -42,5 +60,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 24,
     flex: 1,
+  },
+  rightAction: {
+    marginVertical: 0,
+    fontSize: 24,
   },
 });

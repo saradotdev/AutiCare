@@ -2,7 +2,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { TextProps, TouchableOpacityProps } from "react-native";
 
 export interface MyAppBarProps {
-  title: string;
+  title?: string;
+  rightAction?: string;
+  rightActionOnPress?: string;
 }
 
 export interface MyTextProps extends TextProps {
