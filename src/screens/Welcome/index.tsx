@@ -26,14 +26,10 @@ export default function Welcome() {
           and games.
         </MyText>
 
-        <View
-          style={{ marginVertical: 30, width: "100%", alignItems: "center" }}
-        >
+        <View style={{ marginTop: 20, width: "100%", alignItems: "center" }}>
           <MyButton
             onPress={() => navigation.navigate("InputEmail")}
-            hitSlop={20}
             style={styles.googleButton}
-            activeOpacity={0.8}
           >
             <View style={{ flexDirection: "row" }}>
               <AntDesign
@@ -50,9 +46,7 @@ export default function Welcome() {
 
           <MyButton
             onPress={() => navigation.navigate("InputEmail")}
-            hitSlop={20}
             style={styles.emailButton}
-            activeOpacity={0.9}
           >
             <View style={{ flexDirection: "row" }}>
               <MaterialCommunityIcons
@@ -67,7 +61,10 @@ export default function Welcome() {
             </View>
           </MyButton>
 
-          <MyButton style={{ marginTop: 10 }}>
+          <MyButton
+            onPress={() => navigation.navigate("SignIn")}
+            style={{ height: 20 }}
+          >
             <MyText style={styles.signInButton}>Sign In</MyText>
           </MyButton>
         </View>

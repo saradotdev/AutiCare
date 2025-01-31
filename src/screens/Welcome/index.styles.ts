@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 100,
+    paddingTop: 150,
   },
   main: {
     color: theme.colorWhite,
@@ -30,15 +30,12 @@ const styles = StyleSheet.create({
     fontFamily: theme.poppinsRegular,
     fontSize: 14,
     textAlign: "center",
+    paddingHorizontal: 20,
   },
   googleButton: {
     backgroundColor: theme.colorOrangeRed,
-    borderRadius: 50,
     width: "80%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 10,
+    marginBottom: 0,
   },
   googleButtonText: {
     color: theme.colorWhite,
@@ -48,11 +45,7 @@ const styles = StyleSheet.create({
   },
   emailButton: {
     backgroundColor: theme.colorWhite,
-    borderRadius: 50,
     width: "80%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
   },
   emailButtonText: {
     color: theme.colorSummerSky,
