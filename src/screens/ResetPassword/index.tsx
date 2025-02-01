@@ -6,29 +6,32 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation";
 
-type ForgotPasswordNavigationProp = StackNavigationProp<
+type ResetPasswordNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "ForgotPassword"
+  "ResetPassword"
 >;
 
-export default function ForgotPassword() {
-  const navigation = useNavigation<ForgotPasswordNavigationProp>();
+export default function ResetPassword() {
+  const navigation = useNavigation<ResetPasswordNavigationProp>();
 
   return (
     <View>
       <MyAppBar />
-      <MyText style={styles.main}>Forgot password?</MyText>
-      <MyInput label="E-mail" placeholder="Type your email address" />
+      <MyText style={styles.main}>Reset password</MyText>
+      <MyInput
+        label="Enter your new password"
+        placeholder="Enter your new password"
+      />
+      <MyInput label="Confirm password" placeholder="Enter your new password" />
       <View style={{ alignItems: "center" }}>
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.navigate("VerificationCode")}
+          onPress={() => navigation.navigate("SignIn")}
         >
-          Send Code
+          Login
         </MyButton>
       </View>
-
       <View style={styles.login}>
         <MyText style={{ color: theme.colorSmokeGrey }}>
           Remember password?{" "}
@@ -54,12 +57,12 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     marginTop: 10,
-    width: 150,
+    width: 158,
   },
   login: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 100,
+    marginTop: 10,
   },
 });

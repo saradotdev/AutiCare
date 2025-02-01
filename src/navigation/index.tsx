@@ -5,7 +5,9 @@ import {
   ForgotPassword,
   InputEmail,
   InputPassword,
+  ResetPassword,
   SignIn,
+  VerificationCode,
   Welcome,
 } from "../screens";
 
@@ -15,6 +17,8 @@ export type RootStackParamList = {
   InputPassword: undefined;
   SignIn: undefined;
   ForgotPassword: undefined;
+  VerificationCode: undefined;
+  ResetPassword: undefined;
   ChildTest: undefined;
 };
 
@@ -28,6 +32,8 @@ export const Navigation = () => (
       <Stack.Screen name="InputPassword" component={InputPassword} />
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+      <Stack.Screen name="VerificationCode" component={VerificationCode} />
+      <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="ChildTest" component={ChildTest} />
     </Stack.Navigator>
   </NavigationContainer>

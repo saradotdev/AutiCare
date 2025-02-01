@@ -4,6 +4,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { MyButtonProps } from "../../types";
 
 export const MyButton: React.FC<MyButtonProps> = ({
+  size = 24, // default font size of button text is 24
   textColor,
   style,
   children,
@@ -14,10 +15,9 @@ export const MyButton: React.FC<MyButtonProps> = ({
       {...props}
       style={[styles.button, style]}
       activeOpacity={0.8}
+      hitSlop={20}
     >
-      <MyText style={[styles.buttonText, { color: textColor }]}>
-        {children}
-      </MyText>
+      <MyText style={{ color: textColor, fontSize: size }}>{children}</MyText>
     </TouchableOpacity>
   );
 };
@@ -29,8 +29,5 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     justifyContent: "center",
     alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 24,
   },
 });
