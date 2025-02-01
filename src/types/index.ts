@@ -12,6 +12,7 @@ export interface MyTextProps extends TextProps {
 }
 
 export interface MyButtonProps extends TouchableOpacityProps {
+  size?: number;
   textColor?: string;
   children: React.ReactNode;
 }

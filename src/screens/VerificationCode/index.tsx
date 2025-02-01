@@ -6,39 +6,34 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation";
 
-type ForgotPasswordNavigationProp = StackNavigationProp<
+type VerificationCodeNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "ForgotPassword"
+  "VerificationCode"
 >;
 
-export default function ForgotPassword() {
-  const navigation = useNavigation<ForgotPasswordNavigationProp>();
+export default function VerificationCode() {
+  const navigation = useNavigation<VerificationCodeNavigationProp>();
 
   return (
     <View>
       <MyAppBar />
-      <MyText style={styles.main}>Forgot password?</MyText>
-      <MyInput label="E-mail" placeholder="Type your email address" />
+      <MyText style={styles.main}>Enter the verification code</MyText>
+      <MyInput label="Enter Code" placeholder="Enter the verification code" />
       <View style={{ alignItems: "center" }}>
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.navigate("VerificationCode")}
+          onPress={() => navigation.navigate("ResetPassword")}
         >
-          Send Code
+          Reset Password
         </MyButton>
       </View>
-
       <View style={styles.login}>
         <MyText style={{ color: theme.colorSmokeGrey }}>
-          Remember password?{" "}
+          Didn’t receive a code?{" "}
         </MyText>
-        <MyButton
-          size={15}
-          textColor={theme.colorSummerSky}
-          onPress={() => navigation.navigate("SignIn")}
-        >
-          Login
+        <MyButton size={15} textColor={theme.colorSummerSky}>
+          Resend
         </MyButton>
       </View>
     </View>
@@ -54,7 +49,7 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     marginTop: 10,
-    width: 150,
+    width: 200,
   },
   login: {
     flexDirection: "row",

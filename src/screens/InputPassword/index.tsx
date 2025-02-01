@@ -11,7 +11,7 @@ type InputPasswordNavigationProp = StackNavigationProp<
   "InputPassword"
 >;
 
-export default function InputEmail() {
+export default function InputPassword() {
   const navigation = useNavigation<InputPasswordNavigationProp>();
 
   return (

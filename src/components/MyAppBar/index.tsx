@@ -63,6 +63,5 @@ const styles = StyleSheet.create({
   },
   rightAction: {
     marginVertical: 0,
-    fontSize: 24,
   },
 });
