@@ -14,7 +14,7 @@ type InputPasswordNavigationProp = StackNavigationProp<
 
 export default function InputPassword({ route }: any) {
   const { email } = route.params;
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState<string>("");
   const navigation = useNavigation<InputPasswordNavigationProp>();
 
   const handleSubmit = async () => {
