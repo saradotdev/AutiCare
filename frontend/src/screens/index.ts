@@ -1,8 +1,12 @@
 export { default as Welcome } from "./Welcome";
 export { default as InputEmail } from "./InputEmail";
 export { default as InputPassword } from "./InputPassword";
-export { default as ChildTest } from "./ChildTest";
 export { default as SignIn } from "./SignIn";
 export { default as ForgotPassword } from "./ForgotPassword";
 export { default as VerificationCode } from "./VerificationCode";
 export { default as ResetPassword } from "./ResetPassword";
+export { default as ChildTest } from "./ChildTest";
+export { default as AgePicker } from "./AgePicker";
+export { default as GenderSelector } from "./GenderSelector";
+export { default as SpeechLevel } from "./SpeechLevel";
+export { default as SetGoal } from "./SetGoal";

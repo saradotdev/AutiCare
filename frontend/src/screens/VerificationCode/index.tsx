@@ -29,7 +29,7 @@ export default function VerificationCode() {
         </MyButton>
       </View>
       <View style={styles.login}>
-        <MyText style={{ color: theme.colorSmokeGrey }}>
+        <MyText style={{ color: theme.colorSmoke }}>
           Didn’t receive a code?{" "}
         </MyText>
         <MyButton size={15} textColor={theme.colorSummerSky}>

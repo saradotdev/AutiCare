@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   sub: {
-    color: theme.colorGrey,
+    color: theme.colorMediumGrey,
     marginTop: 5,
     marginBottom: 30,
     marginHorizontal: 16,
