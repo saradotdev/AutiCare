@@ -33,9 +33,7 @@ export default function ResetPassword() {
         </MyButton>
       </View>
       <View style={styles.login}>
-        <MyText style={{ color: theme.colorSmokeGrey }}>
-          Remember password?{" "}
-        </MyText>
+        <MyText style={{ color: theme.colorSmoke }}>Remember password? </MyText>
         <MyButton
           size={15}
           textColor={theme.colorSummerSky}

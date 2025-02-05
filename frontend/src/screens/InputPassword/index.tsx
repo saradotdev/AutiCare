@@ -14,7 +14,7 @@ type InputPasswordNavigationProp = StackNavigationProp<
 
 export default function InputPassword({ route }: any) {
   const { email } = route.params;
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState<string>("");
   const navigation = useNavigation<InputPasswordNavigationProp>();
 
   const handleSubmit = async () => {
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   sub: {
-    color: theme.colorGrey,
+    color: theme.colorMediumGrey,
     marginTop: 5,
     marginBottom: 30,
     marginHorizontal: 16,

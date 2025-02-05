@@ -20,8 +20,8 @@ export interface MyButtonProps extends TouchableOpacityProps {
 export interface MyInputProps {
   label: string;
   placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
+  value?: string;
+  onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
 }
 
@@ -31,4 +31,9 @@ export interface IconButtonProps {
   iconSize?: number;
   backgroundColor?: string;
   onPress?: () => void;
+}
+
+export interface ChildDetailsProps {
+  main: string;
+  sub: string;
 }
