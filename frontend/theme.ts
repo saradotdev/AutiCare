@@ -1,5 +1,6 @@
 const theme = {
   // Colors
+  colorBackground: "rgba(242, 242, 242, 1)",
   colorWhite: "rgba(255, 255, 255, 1)",
   colorOrangeRed: "rgba(232, 71, 56, 1)",
   colorSummerSky: "rgba(55, 178, 255, 1)",

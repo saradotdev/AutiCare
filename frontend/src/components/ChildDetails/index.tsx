@@ -8,7 +8,7 @@ import theme from "../../../theme";
 export default function ChildDetails({ main, sub }: ChildDetailsProps) {
   return (
     <View style={styles.container}>
-      <FamilyImg style={styles.img} />
+      <FamilyImg />
       <MyText style={styles.main}>{main}</MyText>
       <MyText style={styles.sub}>{sub}</MyText>
     </View>
@@ -21,13 +21,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
-  img: {
-    marginTop: 50,
-  },
   main: {
     fontSize: 28,
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 10,
+    color: theme.colorCharcoal,
   },
   sub: {
     fontSize: 18,

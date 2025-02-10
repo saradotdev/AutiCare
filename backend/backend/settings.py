@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-zv(c)5n1%eo9p&(&$wqz#j4wory=-$vdrg4y^6ni@z0sr5uuh)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.104", "0.0.0.0"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -125,13 +125,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ),
 }
-
-# CORS Headers
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:19006",  # Expo Web
-    "http://192.168.1.104:8081",  # Local Expo Go IP
-    "http://127.0.0.1:8000",  # Django Dev Server
-]
 
 CORS_ALLOW_HEADERS = [
     'access-control-allow-origin',

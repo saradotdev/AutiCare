@@ -1,7 +1,11 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MyAppBar, MyButton } from "../../components";
-import { ChildDetails } from "../../components";
+import {
+  MyAppBar,
+  MyButton,
+  ChildDetails,
+  ScrollPicker,
+} from "../../components";
 import theme from "../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation";
@@ -21,6 +25,7 @@ export default function AgePicker() {
     <View style={{ alignItems: "center" }}>
       <MyAppBar />
       <ChildDetails main={main} sub={sub} />
+      <ScrollPicker />
       <MyButton
         style={styles.cta}
         textColor={theme.colorWhite}
@@ -36,6 +41,6 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     width: 218,
-    top: 240,
+    bottom: -10,
   },
 });
