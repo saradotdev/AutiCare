@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = "http://192.168.1.104:8000/api/";
+import { API_URL } from "../constants";
 
 export const registerUser = async (email: string, password: string) => {
   try {

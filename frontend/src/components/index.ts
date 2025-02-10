@@ -4,3 +4,5 @@ export { default as MyAppBar } from "./MyAppBar";
 export { default as IconButton } from "./IconButton";
 export { default as MyInput } from "./MyInput";
 export { default as ChildDetails } from "./ChildDetails";
+export { default as ScrollPicker } from "./ScrollPicker";
+export { default as MyRadioGroup } from "./MyRadioGroup";

@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MyAppBar, MyButton } from "../../components";
+import { MyAppBar, MyButton, MyRadioGroup } from "../../components";
 import { ChildDetails } from "../../components";
 import theme from "../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -21,6 +21,16 @@ export default function SpeechLevel() {
     <View style={{ alignItems: "center" }}>
       <MyAppBar />
       <ChildDetails main={main} sub={sub} />
+      <MyRadioGroup
+        options={[
+          { label: "Nonverbal", value: "a" },
+          { label: "Nonverbal but can tell yes/no", value: "b" },
+          { label: "Cannot speak but knows words", value: "c" },
+          { label: "Does speak but not everyone understands", value: "d" },
+          { label: "Verbal", value: "e" },
+        ]}
+        onSelect={(value) => console.log("Selected:", value)}
+      />
       <MyButton
         style={styles.cta}
         textColor={theme.colorWhite}
@@ -36,6 +46,6 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     width: 218,
-    top: 240,
+    bottom: 25,
   },
 });
