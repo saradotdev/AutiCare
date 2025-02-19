@@ -26,14 +26,24 @@ const MyRadioGroup: React.FC<MyRadioGroupProps> = ({
             style={styles.row}
             onPress={() => handleSelect(option.value)}
           >
-            <MyText
-              style={[
-                styles.text,
-                selected === option.value && styles.selectedText,
-              ]}
-            >
-              {option.label}
-            </MyText>
+            <View style={styles.textContainer}>
+              <MyText
+                style={[
+                  styles.text,
+                  selected === option.value && styles.selectedText,
+                ]}
+              >
+                {option.label}
+              </MyText>
+              <MyText
+                style={[
+                  styles.subtext,
+                  selected === option.value && styles.selectedText,
+                ]}
+              >
+                {option.sublabel}
+              </MyText>
+            </View>
             <RadioButton
               value={option.value}
               color={theme.colorSummerSky}
@@ -62,8 +72,20 @@ const styles = StyleSheet.create({
     borderTopColor: theme.colorSoftGrey,
     borderTopWidth: 1,
   },
+  textContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "90%",
+  },
   text: {
     fontSize: 22,
+    textAlignVertical: "center",
+  },
+  subtext: {
+    fontSize: 12,
+    color: theme.colorMediumGrey,
+    fontFamily: theme.poppinsRegular,
+    textAlignVertical: "center",
   },
   selectedText: {
     color: theme.colorSummerSky,

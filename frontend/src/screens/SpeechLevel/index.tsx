@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     width: 218,
-    bottom: 25,
+    bottom: 40,
   },
 });

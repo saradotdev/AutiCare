@@ -5,6 +5,7 @@ import {
   ChildTest,
   ForgotPassword,
   GenderSelector,
+  Home,
   InputEmail,
   InputPassword,
   ResetPassword,
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   GenderSelector: undefined;
   SpeechLevel: undefined;
   SetGoal: undefined;
+  Home: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -47,6 +49,7 @@ export const Navigation = () => (
       <Stack.Screen name="GenderSelector" component={GenderSelector} />
       <Stack.Screen name="SpeechLevel" component={SpeechLevel} />
       <Stack.Screen name="SetGoal" component={SetGoal} />
+      <Stack.Screen name="Home" component={Home} />
     </Stack.Navigator>
   </NavigationContainer>
 );
