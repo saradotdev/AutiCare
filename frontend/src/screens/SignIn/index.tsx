@@ -17,7 +17,7 @@ export default function SignIn() {
   const handleSubmit = async () => {
     const response = await loginUser(email, password);
     console.log(response);
-    navigation.navigate("ChildTest");
+    navigation.navigate("Home");
   };
 
   return (
