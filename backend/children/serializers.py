@@ -8,7 +8,13 @@ class ChildSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'age', 'gender',
             'speech_level', 'time_of_practice', 'profile_picture'
         ]
-        extra_kwargs = {'user': {'required': False}}  # Make user optional in input
+        extra_kwargs = {
+            'user': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'time_of_practice': {'required': False},
+            'gender' : {'required': False},
+        }
 
     def create(self, validated_data):
         # Automatically set user from the authenticated request
