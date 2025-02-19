@@ -10,3 +10,4 @@ export { default as AgePicker } from "./AgePicker";
 export { default as GenderSelector } from "./GenderSelector";
 export { default as SpeechLevel } from "./SpeechLevel";
 export { default as SetGoal } from "./SetGoal";
+export { default as Home } from "./Home";

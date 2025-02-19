@@ -34,7 +34,7 @@ export interface IconButtonProps {
 }
 
 export interface MyRadioGroupProps {
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; sublabel?: string }[];
   defaultValue?: string;
   onSelect: (value: string) => void;
 }
