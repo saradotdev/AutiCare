@@ -1,12 +1,13 @@
 import React from "react";
 import { MyText } from "../MyText";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { MyButtonProps } from "../../types";
 
 export const MyButton: React.FC<MyButtonProps> = ({
-  size = 24, // default font size of button text is 24
+  size = 24,
   textColor,
   style,
+  icon,
   children,
   ...props
 }) => {
@@ -17,7 +18,19 @@ export const MyButton: React.FC<MyButtonProps> = ({
       activeOpacity={0.8}
       hitSlop={20}
     >
-      <MyText style={{ color: textColor, fontSize: size }}>{children}</MyText>
+      <View style={styles.content}>
+        {icon && <View style={styles.icon}>{icon}</View>}
+        <MyText
+          style={{
+            color: textColor,
+            fontSize: size,
+            flex: icon ? 1 : 0,
+            textAlign: icon ? "left" : "center",
+          }}
+        >
+          {children}
+        </MyText>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -27,7 +40,16 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50,
     marginVertical: 10,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  icon: {
+    marginRight: 8,
+    marginLeft: 20,
   },
 });

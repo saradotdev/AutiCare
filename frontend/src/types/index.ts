@@ -13,8 +13,9 @@ export interface MyTextProps extends TextProps {
 
 export interface MyButtonProps extends TouchableOpacityProps {
   size?: number;
+  icon?: React.ReactNode;
   textColor?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export interface MyInputProps {
@@ -42,4 +43,7 @@ export interface MyRadioGroupProps {
 export interface ChildDetailsProps {
   main: string;
   sub: string;
+  children?: React.ReactNode;
+  nextScreen: string;
+  navigation: any;
 }

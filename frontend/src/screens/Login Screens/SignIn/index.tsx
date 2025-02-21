@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { IconButton, MyAppBar, MyInput, MyText } from "../../components";
+import { IconButton, MyAppBar, MyInput, MyText } from "../../../components";
 import { StyleSheet, View } from "react-native";
-import theme from "../../../theme";
+import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
+import { RootStackParamList } from "../../../navigation";
 import { useNavigation } from "@react-navigation/native";
-import { loginUser } from "../../api/authApi";
+import { loginUser } from "../../../api/authApi";
 
 type SignInNavigationProp = StackNavigationProp<RootStackParamList, "SignIn">;
 

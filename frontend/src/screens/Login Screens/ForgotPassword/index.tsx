@@ -1,37 +1,34 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MyAppBar, MyButton, MyInput, MyText } from "../../components";
-import theme from "../../../theme";
+import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
+import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
+import { RootStackParamList } from "../../../navigation";
 
-type ResetPasswordNavigationProp = StackNavigationProp<
+type ForgotPasswordNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "ResetPassword"
+  "ForgotPassword"
 >;
 
-export default function ResetPassword() {
-  const navigation = useNavigation<ResetPasswordNavigationProp>();
+export default function ForgotPassword() {
+  const navigation = useNavigation<ForgotPasswordNavigationProp>();
 
   return (
     <View>
       <MyAppBar />
-      <MyText style={styles.main}>Reset password</MyText>
-      <MyInput
-        label="Enter your new password"
-        placeholder="Enter your new password"
-      />
-      <MyInput label="Confirm password" placeholder="Enter your new password" />
+      <MyText style={styles.main}>Forgot password?</MyText>
+      <MyInput label="E-mail" placeholder="Type your email address" />
       <View style={{ alignItems: "center" }}>
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.navigate("SignIn")}
+          onPress={() => navigation.navigate("VerificationCode")}
         >
-          Login
+          Send Code
         </MyButton>
       </View>
+
       <View style={styles.login}>
         <MyText style={{ color: theme.colorSmoke }}>Remember password? </MyText>
         <MyButton
@@ -55,12 +52,13 @@ const styles = StyleSheet.create({
   cta: {
     backgroundColor: theme.colorSummerSky,
     marginTop: 10,
-    width: 158,
+    width: 150,
   },
   login: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 100,
+    marginHorizontal: 0,
   },
 });

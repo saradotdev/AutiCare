@@ -61,7 +61,6 @@ export default MyRadioGroup;
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    marginHorizontal: 16,
     marginVertical: 0,
   },
   row: {
