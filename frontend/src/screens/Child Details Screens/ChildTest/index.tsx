@@ -1,11 +1,11 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { ChildTestImg } from "../../assets";
-import { MyButton, MyText } from "../../components";
-import theme from "../../../theme";
+import { ChildTestImg } from "../../../assets";
+import { MyButton, MyText } from "../../../components";
+import theme from "../../../../theme";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
+import { RootStackParamList } from "../../../navigation";
 import { useNavigation } from "@react-navigation/native";
 
 type ChildTestNavigationProp = StackNavigationProp<
@@ -28,9 +28,9 @@ export default function ChildTest() {
         textColor={theme.colorWhite}
         style={styles.cta}
         onPress={() => navigation.navigate("AgePicker")}
+        icon={<AntDesign name="arrowright" size={24} color="white" />}
       >
-        <MyText>Let’s Start</MyText>
-        <AntDesign name="arrowright" size={24} color="white" />
+        <MyText style={{ textAlign: "center" }}>Let’s Start</MyText>
       </MyButton>
     </View>
   );

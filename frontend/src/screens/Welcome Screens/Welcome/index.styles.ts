@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import theme from "../../../theme";
+import theme from "../../../../theme";
 
 const styles = StyleSheet.create({
   container: {
@@ -32,34 +32,25 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 20,
   },
+  buttonsContainer: {
+    marginTop: 20,
+    width: "100%",
+    alignItems: "center",
+  },
   googleButton: {
     backgroundColor: theme.colorOrangeRed,
     width: "80%",
     marginBottom: 0,
   },
-  googleButtonText: {
-    color: theme.colorWhite,
-    textAlignVertical: "center",
-    fontSize: 18,
-    flex: 1,
-  },
   emailButton: {
     backgroundColor: theme.colorWhite,
     width: "80%",
-  },
-  emailButtonText: {
-    color: theme.colorSummerSky,
-    textAlignVertical: "center",
-    fontSize: 18,
-    flex: 1,
-  },
-  icon: {
-    paddingHorizontal: 15,
   },
   signInButton: {
     fontSize: 18,
     color: theme.colorWhite,
     textDecorationLine: "underline",
+    textAlign: "center",
   },
 });
 

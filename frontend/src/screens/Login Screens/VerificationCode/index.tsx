@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MyAppBar, MyButton, MyInput, MyText } from "../../components";
-import theme from "../../../theme";
+import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
+import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
+import { RootStackParamList } from "../../../navigation";
 
 type VerificationCodeNavigationProp = StackNavigationProp<
   RootStackParamList,

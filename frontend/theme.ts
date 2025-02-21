@@ -6,6 +6,7 @@ const theme = {
   colorSummerSky: "rgba(55, 178, 255, 1)",
   colorBlack: "rgba(0, 0, 0, 1)",
   colorSoftGrey: "rgba(229, 229, 229, 1)",
+  colorLightGrey: "rgba(30, 30, 30, 0.25)",
   colorMediumGrey: "rgba(30, 30, 30, 0.55)",
   colorDarkGrey: "rgba(30, 30, 30, 0.75)",
   colorSmoke: "rgba(0, 0, 0, 0.55)",

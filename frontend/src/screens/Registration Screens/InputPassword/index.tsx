@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { MyAppBar, MyButton, MyInput, MyText } from "../../components";
-import theme from "../../../theme";
+import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
+import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
-import { registerUser } from "../../api/authApi";
+import { RootStackParamList } from "../../../navigation";
+import { registerUser } from "../../../api/authApi";
 
 type InputPasswordNavigationProp = StackNavigationProp<
   RootStackParamList,

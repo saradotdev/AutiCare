@@ -1,15 +1,15 @@
 import React from "react";
 import { ImageBackground, View } from "react-native";
-import { MyButton, MyText } from "../../components";
+import { MyButton, MyText } from "../../../components";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
-import theme from "../../../theme";
+import { RootStackParamList } from "../../../navigation";
+import theme from "../../../../theme";
 import styles from "./index.styles";
 
-const welcomeBg = require("../../assets/images/Welcome.png");
+const welcomeBg = require("../../../assets/images/Welcome.png");
 type WelcomeNavigationProp = StackNavigationProp<RootStackParamList, "Welcome">;
 
 export default function Welcome() {
@@ -26,39 +26,33 @@ export default function Welcome() {
           and games.
         </MyText>
 
-        <View style={{ marginTop: 20, width: "100%", alignItems: "center" }}>
+        <View style={styles.buttonsContainer}>
           <MyButton
             onPress={() => navigation.navigate("InputEmail")}
             style={styles.googleButton}
+            textColor={theme.colorWhite}
+            size={18}
+            icon={
+              <AntDesign name="google" size={36} color={theme.colorWhite} />
+            }
           >
-            <View style={{ flexDirection: "row" }}>
-              <AntDesign
-                name="google"
-                style={styles.icon}
-                size={36}
-                color={theme.colorWhite}
-              />
-              <MyText style={styles.googleButtonText}>
-                Continue with Google
-              </MyText>
-            </View>
+            Continue with Google
           </MyButton>
 
           <MyButton
             onPress={() => navigation.navigate("InputEmail")}
             style={styles.emailButton}
-          >
-            <View style={{ flexDirection: "row" }}>
+            size={18}
+            textColor={theme.colorSummerSky}
+            icon={
               <MaterialCommunityIcons
                 name="email"
-                style={styles.icon}
                 size={36}
                 color={theme.colorSummerSky}
               />
-              <MyText style={styles.emailButtonText}>
-                Register with Email
-              </MyText>
-            </View>
+            }
+          >
+            Register with Email
           </MyButton>
 
           <MyButton

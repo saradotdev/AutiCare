@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { MyAppBar, MyButton, MyRadioGroup, MyText } from "../../components";
-import theme from "../../../theme";
+import { MyAppBar, MyButton, MyRadioGroup, MyText } from "../../../components";
+import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation";
+import { RootStackParamList } from "../../../navigation";
 import { useNavigation } from "@react-navigation/native";
 
 type SetGoalNavigationProp = StackNavigationProp<RootStackParamList, "SetGoal">;
@@ -12,7 +12,7 @@ export default function SetGoal() {
   const navigation = useNavigation<SetGoalNavigationProp>();
 
   return (
-    <View style={{ alignItems: "center" }}>
+    <View>
       <MyAppBar />
       <View style={styles.container}>
         <MyText style={styles.main}>Dr. Imrana Shakoor</MyText>
@@ -22,6 +22,7 @@ export default function SetGoal() {
           16 minutes daily for optimum growth and best resuts.
         </MyText>
       </View>
+
       <MyRadioGroup
         options={[
           { label: "Basic", value: "basic", sublabel: "8 minutes daily" },
@@ -30,13 +31,16 @@ export default function SetGoal() {
         ]}
         onSelect={(value) => console.log("Selected:", value)}
       />
-      <MyButton
-        style={styles.cta}
-        textColor={theme.colorWhite}
-        onPress={() => navigation.navigate("Home")}
-      >
-        Continue
-      </MyButton>
+
+      <View style={styles.ctaContainer}>
+        <MyButton
+          style={styles.cta}
+          textColor={theme.colorWhite}
+          onPress={() => navigation.navigate("Home")}
+        >
+          Continue
+        </MyButton>
+      </View>
     </View>
   );
 }
@@ -61,10 +65,14 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 40,
   },
+  ctaContainer: {
+    flex: 1,
+    bottom: -308,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
   cta: {
     backgroundColor: theme.colorSummerSky,
     width: 218,
-    position: "absolute",
-    bottom: -300,
   },
 });

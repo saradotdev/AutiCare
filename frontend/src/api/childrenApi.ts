@@ -10,7 +10,6 @@ export const fetchData = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("Protected Data:", response.data);
     return response.data;
   } catch (error) {
     console.error(error);
