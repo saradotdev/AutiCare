@@ -16,7 +16,9 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["INTERNET"],
+      "permissions": [
+        "INTERNET"
+      ],
       "enableHermes": true,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
@@ -27,7 +29,24 @@
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
-    "assetBundlePatterns": ["**/*"],
-    "plugins": ["expo-router"]
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-router",
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "612d2c99-d5c5-400a-8f17-2dfaaf40d4d6"
+      }
+    }
   }
 }
