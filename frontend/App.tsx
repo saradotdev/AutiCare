@@ -1,8 +1,11 @@
+import "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Navigation } from "./src/navigation";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App(): JSX.Element | null {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -12,25 +15,21 @@ export default function App(): JSX.Element | null {
   });
 
   useEffect(() => {
-    const prepare = async (): Promise<void> => {
-      await SplashScreen.preventAutoHideAsync();
-      setAppIsReady(true);
+    const prepare = async () => {
+      if (fontsLoaded) {
+        setAppIsReady(true);
+        await SplashScreen.hideAsync();
+      }
     };
     prepare();
   }, [fontsLoaded]);
-
-  const onLayoutRootView = useCallback(async (): Promise<void> => {
-    if (appIsReady) {
-      await SplashScreen.hideAsync();
-    }
-  }, [appIsReady]);
 
   if (!appIsReady) {
     return null;
   }
 
   return (
-    <SafeAreaProvider onLayout={onLayoutRootView}>
+    <SafeAreaProvider>
       <Navigation />
     </SafeAreaProvider>
   );

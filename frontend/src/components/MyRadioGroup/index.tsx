@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { RadioButton } from "react-native-paper";
-import { MyText } from "../../components";
+import { MyText } from "../MyText";
 import { MyRadioGroupProps } from "../../types";
 import theme from "../../../theme";
 
