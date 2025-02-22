@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
@@ -15,13 +15,36 @@ type InputPasswordNavigationProp = StackNavigationProp<
 export default function InputPassword({ route }: any) {
   const { email } = route.params;
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigation = useNavigation<InputPasswordNavigationProp>();
 
   const handleSubmit = async () => {
-    const response = await registerUser(email, password);
-    console.log(response);
-    navigation.navigate("ChildTest");
+    setLoading(true);
+    try {
+      const response = await registerUser(email, password);
+      console.log(response);
+      setIsLoggedIn(true);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "ChildTest" }],
+      });
+    } catch (error) {
+      console.error("Error registering user:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color={theme.colorSummerSky} />
+      </View>
+    );
+  }
+
+  if (isLoggedIn) return null; // avoid rendering the signup screen if user already logged in
 
   return (
     <View>
@@ -40,6 +63,7 @@ export default function InputPassword({ route }: any) {
           textColor={theme.colorWhite}
           style={styles.cta}
           onPress={handleSubmit}
+          disabled={loading}
         >
           Done
         </MyButton>
@@ -64,5 +88,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colorSummerSky,
     marginTop: 10,
     width: 100,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

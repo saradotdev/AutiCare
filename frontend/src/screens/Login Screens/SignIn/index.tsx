@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { IconButton, MyAppBar, MyInput, MyText } from "../../../components";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../navigation";
@@ -12,13 +12,36 @@ type SignInNavigationProp = StackNavigationProp<RootStackParamList, "SignIn">;
 export default function SignIn() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigation = useNavigation<SignInNavigationProp>();
 
   const handleSubmit = async () => {
-    const response = await loginUser(email, password);
-    console.log(response);
-    navigation.navigate("Home");
+    setLoading(true);
+    try {
+      const response = await loginUser(email, password);
+      console.log(response);
+      setIsLoggedIn(true);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    } catch (error) {
+      console.error("Error logging in:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color={theme.colorSummerSky} />
+      </View>
+    );
+  }
+
+  if (isLoggedIn) return null; // avoid rendering the login screen if user already logged in
 
   return (
     <View>
@@ -47,6 +70,7 @@ export default function SignIn() {
           iconColor={theme.colorWhite}
           backgroundColor={theme.colorSummerSky}
           onPress={handleSubmit}
+          disabled={loading}
         />
       </View>
     </View>
@@ -62,5 +86,10 @@ const styles = StyleSheet.create({
   forwardButton: {
     alignItems: "flex-end",
     marginHorizontal: 16,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

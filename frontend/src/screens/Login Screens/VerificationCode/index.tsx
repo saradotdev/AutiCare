@@ -23,7 +23,7 @@ export default function VerificationCode() {
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.navigate("ResetPassword")}
+          onPress={() => navigation.replace("ResetPassword")}
         >
           Reset Password
         </MyButton>
