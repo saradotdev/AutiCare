@@ -36,7 +36,12 @@ export default function SetGoal() {
         <MyButton
           style={styles.cta}
           textColor={theme.colorWhite}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() =>
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            })
+          }
         >
           Continue
         </MyButton>

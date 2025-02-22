@@ -26,7 +26,7 @@ export interface MyInputProps {
   secureTextEntry?: boolean;
 }
 
-export interface IconButtonProps {
+export interface IconButtonProps extends TouchableOpacityProps {
   iconName: keyof typeof MaterialIcons.glyphMap;
   iconColor?: string;
   iconSize?: number;

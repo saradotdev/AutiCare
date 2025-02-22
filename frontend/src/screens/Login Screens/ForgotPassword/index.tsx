@@ -34,7 +34,7 @@ export default function ForgotPassword() {
         <MyButton
           size={15}
           textColor={theme.colorSummerSky}
-          onPress={() => navigation.navigate("SignIn")}
+          onPress={() => navigation.replace("SignIn")}
         >
           Login
         </MyButton>
