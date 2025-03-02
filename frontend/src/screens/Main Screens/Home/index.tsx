@@ -3,13 +3,20 @@ import { View, ActivityIndicator, ImageBackground } from "react-native";
 import { styles } from "./index.styles";
 import { fetchData } from "../../../api/childrenApi";
 import theme from "../../../../theme";
-import { MyButton, MyText } from "../../../components";
+import { GameCard, MyButton, MyText } from "../../../components";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { GameCard1, GameCard2 } from "../../../assets";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../../navigation";
+import { useNavigation } from "@react-navigation/native";
+
+type HomeNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation<HomeNavigationProp>();
 
   useEffect(() => {
     const getData = async () => {
@@ -43,6 +50,20 @@ export default function Home() {
       >
         <MyText>Guardian</MyText>
       </MyButton>
+      <GameCard
+        title="Guess the expression"
+        color={theme.colorSummerSky}
+        Image={() => <GameCard1 />}
+        nextScreen="GuessExpression"
+        navigation={navigation}
+      />
+      <GameCard
+        title="Match Fruits/Vegies"
+        color={theme.colorBlue}
+        Image={() => <GameCard2 />}
+        nextScreen="MatchFruits"
+        navigation={navigation}
+      />
     </ImageBackground>
   );
 }
