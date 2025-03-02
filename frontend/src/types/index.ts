@@ -47,3 +47,11 @@ export interface ChildDetailsProps {
   nextScreen: string;
   navigation: any;
 }
+
+export interface GameCardProps {
+  title: string;
+  color: string;
+  Image: React.FC;
+  nextScreen: string;
+  navigation: any;
+}

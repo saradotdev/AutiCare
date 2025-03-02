@@ -11,3 +11,5 @@ export { default as GenderSelector } from "./Child Details Screens/GenderSelecto
 export { default as SpeechLevel } from "./Child Details Screens/SpeechLevel";
 export { default as SetGoal } from "./Child Details Screens/SetGoal";
 export { default as Home } from "./Main Screens/Home";
+export { default as GuessExpression } from "./Games/GuessExpression";
+export { default as MatchFruits } from "./Games/MatchFruits";
