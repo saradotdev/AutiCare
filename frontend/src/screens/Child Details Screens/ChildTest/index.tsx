@@ -4,17 +4,12 @@ import { ChildTestImg } from "../../../assets";
 import { MyButton, MyText } from "../../../components";
 import theme from "../../../../theme";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { useNavigation } from "@react-navigation/native";
-
-type ChildTestNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "ChildTest"
->;
+import { StackNavigationProp } from "@react-navigation/stack";
 
 export default function ChildTest() {
-  const navigation = useNavigation<ChildTestNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.container}>

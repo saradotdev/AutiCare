@@ -2,14 +2,12 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { MyAppBar, MyButton, MyRadioGroup, MyText } from "../../../components";
 import theme from "../../../../theme";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { useNavigation } from "@react-navigation/native";
-
-type SetGoalNavigationProp = StackNavigationProp<RootStackParamList, "SetGoal">;
+import { StackNavigationProp } from "@react-navigation/stack";
 
 export default function SetGoal() {
-  const navigation = useNavigation<SetGoalNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View>

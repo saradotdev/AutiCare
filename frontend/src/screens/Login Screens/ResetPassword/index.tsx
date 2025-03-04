@@ -4,15 +4,10 @@ import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
-
-type ResetPasswordNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "ResetPassword"
->;
+import { RootStackParamList } from "../../../types/navigation";
 
 export default function ResetPassword() {
-  const navigation = useNavigation<ResetPasswordNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View>

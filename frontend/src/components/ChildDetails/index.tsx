@@ -11,8 +11,7 @@ export default function ChildDetails({
   main,
   sub,
   children,
-  nextScreen,
-  navigation,
+  onPress,
 }: ChildDetailsProps) {
   return (
     <View>
@@ -28,7 +27,7 @@ export default function ChildDetails({
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.navigate(nextScreen)}
+          onPress={onPress}
         >
           <MyText>Continue</MyText>
         </MyButton>

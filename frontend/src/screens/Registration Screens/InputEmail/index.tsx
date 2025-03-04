@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { IconButton, MyAppBar, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 
-type InputEmailNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "InputEmail"
->;
-
 export default function InputEmail() {
   const [email, setEmail] = useState<string>("");
-  const navigation = useNavigation<InputEmailNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View>

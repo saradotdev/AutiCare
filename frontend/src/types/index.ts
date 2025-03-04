@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { TextProps, TouchableOpacityProps } from "react-native";
+import { RootStackParamList } from "./navigation";
 
 export interface MyAppBarProps {
   title?: string;
@@ -44,14 +45,20 @@ export interface ChildDetailsProps {
   main: string;
   sub: string;
   children?: React.ReactNode;
-  nextScreen: string;
-  navigation: any;
+  onPress?: () => void;
 }
 
 export interface GameCardProps {
   title: string;
   color: string;
   Image: React.FC;
-  nextScreen: string;
-  navigation: any;
+  onPress: () => void;
 }
+
+export type Game = {
+  id: string;
+  title: string;
+  color: string;
+  Image: () => JSX.Element;
+  screen: keyof RootStackParamList;
+};

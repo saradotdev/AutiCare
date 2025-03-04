@@ -3,16 +3,11 @@ import { StyleSheet, View } from "react-native";
 import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../../../types/navigation";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
-
-type ForgotPasswordNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "ForgotPassword"
->;
 
 export default function ForgotPassword() {
-  const navigation = useNavigation<ForgotPasswordNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View>
