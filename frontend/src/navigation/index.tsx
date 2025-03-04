@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { RootStackParamList } from "../types/navigation";
 import {
   AgePicker,
   ChildTest,
@@ -9,7 +10,7 @@ import {
   Home,
   InputEmail,
   InputPassword,
-  MatchFruits,
+  MatchAndSort,
   ResetPassword,
   SetGoal,
   SignIn,
@@ -17,24 +18,6 @@ import {
   VerificationCode,
   Welcome,
 } from "../screens";
-
-export type RootStackParamList = {
-  Welcome: undefined;
-  InputEmail: undefined;
-  InputPassword: { email: string };
-  SignIn: undefined;
-  ForgotPassword: undefined;
-  VerificationCode: undefined;
-  ResetPassword: undefined;
-  ChildTest: undefined;
-  AgePicker: undefined;
-  GenderSelector: undefined;
-  SpeechLevel: undefined;
-  SetGoal: undefined;
-  Home: undefined;
-  GuessExpression: undefined;
-  MatchFruits: undefined;
-};
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -55,7 +38,7 @@ export const Navigation = () => (
       <Stack.Screen name="SetGoal" component={SetGoal} />
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="GuessExpression" component={GuessExpression} />
-      <Stack.Screen name="MatchFruits" component={MatchFruits} />
+      <Stack.Screen name="MatchAndSort" component={MatchAndSort} />
     </Stack.Navigator>
   </NavigationContainer>
 );

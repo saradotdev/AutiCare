@@ -3,18 +3,17 @@ import { IconButton, MyAppBar, MyInput, MyText } from "../../../components";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { useNavigation } from "@react-navigation/native";
 import { loginUser } from "../../../api/authApi";
-
-type SignInNavigationProp = StackNavigationProp<RootStackParamList, "SignIn">;
 
 export default function SignIn() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigation = useNavigation<SignInNavigationProp>();
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleSubmit = async () => {
     setLoading(true);

@@ -9,14 +9,13 @@ export const GameCard: React.FC<GameCardProps> = ({
   title,
   color,
   Image,
-  nextScreen,
-  navigation,
+  onPress,
 }) => {
   return (
     <TouchableOpacity
       style={[{ backgroundColor: color }, styles.container]}
       activeOpacity={0.8}
-      onPress={() => navigation.navigate(nextScreen)}
+      onPress={onPress}
     >
       <Image />
       <View style={styles.row}>

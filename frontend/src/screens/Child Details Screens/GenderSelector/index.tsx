@@ -1,28 +1,22 @@
 import React from "react";
 import { View } from "react-native";
 import { ChildDetails, MyRadioGroup } from "../../../components";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { useNavigation } from "@react-navigation/native";
-
-type GenderSelectorNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "GenderSelector"
->;
+import { StackNavigationProp } from "@react-navigation/stack";
 
 export default function GenderSelector() {
   const main = "Select Gender";
   const sub = "Please select your child’s gender";
 
-  const navigation = useNavigation<GenderSelectorNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={{ alignItems: "center" }}>
       <ChildDetails
         main={main}
         sub={sub}
-        nextScreen="SpeechLevel"
-        navigation={navigation}
+        onPress={() => navigation.navigate("SpeechLevel")}
       >
         <MyRadioGroup
           options={[

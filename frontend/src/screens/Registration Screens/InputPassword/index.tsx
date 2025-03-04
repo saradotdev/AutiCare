@@ -4,20 +4,15 @@ import { useNavigation } from "@react-navigation/native";
 import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
+import { RootStackParamList } from "../../../types/navigation";
 import { registerUser } from "../../../api/authApi";
-
-type InputPasswordNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "InputPassword"
->;
 
 export default function InputPassword({ route }: any) {
   const { email } = route.params;
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigation = useNavigation<InputPasswordNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleSubmit = async () => {
     setLoading(true);

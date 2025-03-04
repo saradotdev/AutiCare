@@ -1,22 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { View, ActivityIndicator, ImageBackground } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  ImageBackground,
+  FlatList,
+} from "react-native";
 import { styles } from "./index.styles";
 import { fetchData } from "../../../api/childrenApi";
 import theme from "../../../../theme";
 import { GameCard, MyButton, MyText } from "../../../components";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { GameCard1, GameCard2 } from "../../../assets";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../navigation";
 import { useNavigation } from "@react-navigation/native";
-
-type HomeNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+import { RootStackParamList } from "../../../types/navigation";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { Game } from "../../../types";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
+const GAMES: Game[] = [
+  {
+    id: "1",
+    title: "Guess the expression",
+    color: theme.colorSummerSky,
+    Image: () => <GameCard1 />,
+    screen: "GuessExpression",
+  },
+  {
+    id: "2",
+    title: "Match and Sort",
+    color: theme.colorBlue,
+    Image: () => <GameCard2 />,
+    screen: "MatchAndSort",
+  },
+];
+
 export default function Home() {
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation<HomeNavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     const getData = async () => {
@@ -35,7 +56,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View style={[styles.container, styles.loader]}>
         <ActivityIndicator size="large" color={theme.colorSummerSky} />
       </View>
     );
@@ -50,19 +71,19 @@ export default function Home() {
       >
         <MyText>Guardian</MyText>
       </MyButton>
-      <GameCard
-        title="Guess the expression"
-        color={theme.colorSummerSky}
-        Image={() => <GameCard1 />}
-        nextScreen="GuessExpression"
-        navigation={navigation}
-      />
-      <GameCard
-        title="Match Fruits/Vegies"
-        color={theme.colorBlue}
-        Image={() => <GameCard2 />}
-        nextScreen="MatchFruits"
-        navigation={navigation}
+
+      <FlatList
+        data={GAMES}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <GameCard
+            title={item.title}
+            color={item.color}
+            Image={item.Image}
+            onPress={() => navigation.navigate(item.screen as never)}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
       />
     </ImageBackground>
   );
