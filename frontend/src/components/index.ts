@@ -7,3 +7,4 @@ export { default as ChildDetails } from "./ChildDetails";
 export { default as ScrollPicker } from "./ScrollPicker";
 export { default as MyRadioGroup } from "./MyRadioGroup";
 export { GameCard } from "./GameCard";
+export { default as GameAppBar } from "./GameAppBar";
