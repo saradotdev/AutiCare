@@ -14,8 +14,8 @@ export default function IconButton({
     <TouchableOpacity onPress={onPress}>
       <View
         style={{
-          width: 36,
-          height: 36,
+          width: iconSize,
+          height: iconSize,
           alignContent: "center",
           justifyContent: "center",
           backgroundColor: backgroundColor,
