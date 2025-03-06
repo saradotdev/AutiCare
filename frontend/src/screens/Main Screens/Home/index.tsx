@@ -37,6 +37,7 @@ const GAMES: Game[] = [
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<Game[]>([]);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function Home() {
       try {
         const response = await fetchData();
         console.log(response);
+        setData(GAMES);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -53,14 +55,6 @@ export default function Home() {
 
     getData();
   }, []);
-
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.loader]}>
-        <ActivityIndicator size="large" color={theme.colorSummerSky} />
-      </View>
-    );
-  }
 
   return (
     <ImageBackground source={homeBg} style={styles.container}>
@@ -73,7 +67,7 @@ export default function Home() {
       </MyButton>
 
       <FlatList
-        data={GAMES}
+        data={loading ? [] : data} // Pass empty array while loading
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <GameCard
@@ -84,6 +78,13 @@ export default function Home() {
           />
         )}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.loader}>
+              <ActivityIndicator size="large" color={theme.colorSummerSky} />
+            </View>
+          ) : null
+        }
       />
     </ImageBackground>
   );

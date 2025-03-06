@@ -5,6 +5,14 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
+  },
   contentContainer: {
     flex: 1,
     alignItems: "center",
@@ -17,25 +25,5 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
     marginHorizontal: 5,
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: 250,
-    height: 350,
-    backgroundColor: theme.colorWhite,
-    padding: 20,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "-5px -8px 3.7px 0px rgba(0, 132, 255, 0.25) inset",
-  },
-  modalText: {
-    fontSize: 45,
-    textAlign: "center",
-    color: theme.colorSummerSky,
   },
 });

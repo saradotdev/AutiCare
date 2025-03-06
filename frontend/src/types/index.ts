@@ -62,3 +62,11 @@ export type Game = {
   Image: () => JSX.Element;
   screen: keyof RootStackParamList;
 };
+
+export interface MyModalProps {
+  visible: boolean;
+  text?: string;
+  buttonText?: string;
+  onClose: () => void;
+  children?: React.ReactNode;
+}

@@ -8,3 +8,11 @@ export { default as Title } from "./images/games/Guess The Expression/Title.svg"
 export { default as Angry } from "./images/games/Guess The Expression/Angry/1.svg";
 export { default as Happy } from "./images/games/Guess The Expression/Happy/1.svg";
 export { default as Sad } from "./images/games/Guess The Expression/Sad/1.svg";
+
+// Images for Game: Match and Sort
+export { default as Blue } from "./images/games/Match And Sort/Blue.svg";
+export { default as Green } from "./images/games/Match And Sort/Green.svg";
+export { default as Blue1 } from "./images/games/Match And Sort/Blue/1.svg";
+export { default as Blue2 } from "./images/games/Match And Sort/Blue/2.svg";
+export { default as Green1 } from "./images/games/Match And Sort/Green/1.svg";
+export { default as Green2 } from "./images/games/Match And Sort/Green/2.svg";

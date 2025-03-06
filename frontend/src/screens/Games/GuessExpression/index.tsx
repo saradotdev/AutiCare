@@ -1,18 +1,12 @@
 import React, { useRef, useState } from "react";
-import {
-  Dimensions,
-  ImageBackground,
-  View,
-  Modal,
-  Animated,
-} from "react-native";
-import { GameAppBar, MyButton, MyText } from "../../../components";
+import { Dimensions, ImageBackground, View, Animated } from "react-native";
+import { GameAppBar, MyButton, MyModal } from "../../../components";
 import * as Images from "../../../assets";
 import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { styles } from "./index.styles";
 
-const gameBg = require("../../../assets/images/games/Background.jpeg");
+const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
 
 const expressions = [
   { name: "Happy", component: Images.Happy },
@@ -88,6 +82,7 @@ export default function GuessExpression() {
 
   return (
     <ImageBackground source={gameBg} style={styles.container}>
+      <View style={styles.overlay}></View>
       <GameAppBar />
 
       <View style={styles.contentContainer}>
@@ -120,18 +115,11 @@ export default function GuessExpression() {
       </View>
 
       {/* Modal for Correct/Wrong Message */}
-      <Modal
-        transparent
+      <MyModal
         visible={modalVisible}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <MyText style={styles.modalText}>{modalText}</MyText>
-          </View>
-        </View>
-      </Modal>
+        text={modalText}
+        onClose={() => setModalVisible(false)}
+      ></MyModal>
 
       <ConfettiCannon
         ref={confettiRef}
