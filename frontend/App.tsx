@@ -12,6 +12,7 @@ export default function App(): JSX.Element | null {
   const [fontsLoaded] = useFonts({
     IBrand: require("./src/assets/fonts/ibrand.otf"),
     PoppinsRegular: require("./src/assets/fonts/Poppins-Regular.ttf"),
+    ComicSansMS: require("./src/assets/fonts/Comic-Sans-MS.ttf"),
   });
 
   useEffect(() => {

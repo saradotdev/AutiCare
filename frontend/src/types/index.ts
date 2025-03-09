@@ -70,3 +70,8 @@ export interface MyModalProps {
   onClose: () => void;
   children?: React.ReactNode;
 }
+
+export interface ScoreCardProps {
+  score: number;
+  total: number;
+}

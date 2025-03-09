@@ -18,6 +18,7 @@ const theme = {
   poppinsRegular: "PoppinsRegular",
   poppinsBold: "PoppinsBold",
   poppinsLight: "PoppinsLight",
+  comicSansMS: "ComicSansMS",
 };
 
 export default theme;
