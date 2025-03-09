@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
   },
   button: {
     width: 100,
+    fontFamily: theme.comicSansMS,
     backgroundColor: theme.colorSummerSky,
     borderColor: theme.colorWhite,
     borderWidth: 2,

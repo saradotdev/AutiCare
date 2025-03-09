@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     boxShadow: "-5px -8px 3.7px 0px rgba(0, 132, 255, 0.25) inset",
   },
   modalText: {
+    fontFamily: theme.comicSansMS,
     fontSize: 45,
     textAlign: "center",
     color: theme.colorSummerSky,
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     width: 100,
     borderRadius: 10,
     marginTop: 30,
-    backgroundColor: theme.colorSummerSky,
+    backgroundColor: "rgba(224, 48, 85, 1)",
   },
 });
 

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Dimensions, ImageBackground, View, Animated } from "react-native";
-import { GameAppBar, MyButton, MyModal } from "../../../components";
+import { GameAppBar, MyButton, MyModal, MyText } from "../../../components";
 import * as Images from "../../../assets";
 import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -68,7 +68,7 @@ export default function GuessExpression() {
       }, 2000);
     } else {
       // wrong guess: showing modal but keeping the image
-      setModalText("Oops!\nTry Again");
+      setModalText("Oops!!\nTry Again");
       setModalVisible(true);
 
       setTimeout(() => {
@@ -107,7 +107,9 @@ export default function GuessExpression() {
                 textColor={theme.colorWhite}
                 style={styles.button}
               >
-                {exp.name}
+                <MyText style={{ fontFamily: theme.comicSansMS }}>
+                  {exp.name}
+                </MyText>
               </MyButton>
             </Animated.View>
           ))}
