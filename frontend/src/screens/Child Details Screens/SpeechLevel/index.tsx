@@ -21,10 +21,8 @@ export default function SpeechLevel() {
         <MyRadioGroup
           options={[
             { label: "Nonverbal", value: "a" },
-            { label: "Nonverbal but can tell yes/no", value: "b" },
-            { label: "Cannot speak but knows words", value: "c" },
-            { label: "Does speak but not everyone understands", value: "d" },
-            { label: "Verbal", value: "e" },
+            { label: "Partially Verbal", value: "b" },
+            { label: "Verbal", value: "c" },
           ]}
           onSelect={(value) => console.log("Selected:", value)}
         />

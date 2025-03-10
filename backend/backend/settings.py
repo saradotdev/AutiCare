@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -158,6 +159,33 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (User-uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configure symlink for facial expression images
+import sys
+if 'runserver' in sys.argv:
+    facial_expressions_source = os.path.join(BASE_DIR, 'facial_expression_images')
+    facial_expressions_target = os.path.join(MEDIA_ROOT, 'facial_expression_images')
+    
+    # Create the media directory if it doesn't exist
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+    
+    # Create symlink if it doesn't exist
+    if not os.path.exists(facial_expressions_target):
+        try:
+            # For Windows
+            if os.name == 'nt':
+                import subprocess
+                subprocess.check_call(['mklink', '/D', facial_expressions_target, facial_expressions_source], shell=True)
+            # For Unix-like systems
+            else:
+                os.symlink(facial_expressions_source, facial_expressions_target)
+        except Exception as e:
+            print(f"Warning: Failed to create symlink for facial expression images: {e}")
+            print("You may need to manually create a symlink or copy the images to the media directory.")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
