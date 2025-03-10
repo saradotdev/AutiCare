@@ -5,14 +5,10 @@ import * as Images from "../../../assets";
 import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { styles } from "./index.styles";
+import { expressions } from "./expressionsData";
+import { instructions } from "./instructionsData";
 
 const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
-
-const expressions = [
-  { name: "Happy", component: Images.Happy },
-  { name: "Sad", component: Images.Sad },
-  { name: "Angry", component: Images.Angry },
-];
 
 export default function GuessExpression() {
   const [currentExpression, setCurrentExpression] = useState(
@@ -83,7 +79,7 @@ export default function GuessExpression() {
   return (
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
-      <GameAppBar />
+      <GameAppBar title="Guess the Expression" instructions={instructions} />
 
       <View style={styles.contentContainer}>
         <Images.Title width={"90%"} />
