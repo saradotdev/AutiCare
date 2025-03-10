@@ -55,6 +55,11 @@ export interface GameCardProps {
   onPress: () => void;
 }
 
+export type GameAppBarProps = {
+  title: string;
+  instructions: string[];
+};
+
 export type Game = {
   id: string;
   title: string;

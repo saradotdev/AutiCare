@@ -11,6 +11,7 @@ import { GameAppBar, MyModal, ScoreCard } from "../../../components";
 import { objects, buckets } from "./objectsData";
 import { styles } from "./index.styles";
 import ConfettiCannon from "react-native-confetti-cannon";
+import { instructions } from "./instructionsData";
 
 const FALL_DURATION = 8000;
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -105,7 +106,7 @@ export default function MatchAndSort() {
   return (
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
-      <GameAppBar />
+      <GameAppBar title="Match and Sort" instructions={instructions} />
       <ScoreCard score={score} total={5} />
 
       <View style={styles.gameContainer}>
