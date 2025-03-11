@@ -8,9 +8,9 @@ export type RootStackParamList = {
   ResetPassword: undefined;
   ChildTest: undefined;
   AgePicker: undefined;
-  GenderSelector: undefined;
-  SpeechLevel: undefined;
-  SetGoal: undefined;
+  GenderSelector: { age: string };
+  SpeechLevel: { age: string; gender: string };
+  SetGoal: { age: string; gender: string; speechLevel: string };
   Home: undefined;
   GuessExpression: undefined;
   MatchAndSort: undefined;
