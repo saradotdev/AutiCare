@@ -25,3 +25,26 @@ class SessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
         fields = '__all__'
+
+class FacialExpressionSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)  # The image filename
+    type = serializers.CharField(read_only=True)  # happy, sad, etc.
+    image_url = serializers.URLField(read_only=True)  # Full URL to the image
+    is_correct = serializers.BooleanField(read_only=True, default=False)  # Whether this is the correct expression
+
+class FacialExpressionListSerializer(serializers.Serializer):
+    age_group = serializers.CharField(read_only=True)  # The age group (3-5, 6-8, 9-12)
+    images = FacialExpressionSerializer(many=True, read_only=True)
+    
+class ExpressionImageSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    image_url = serializers.URLField(read_only=True)
+    is_correct = serializers.BooleanField(read_only=True, default=False)
+
+class ExpressionGroupSerializer(serializers.Serializer):
+    type = serializers.CharField(read_only=True)  # The expression type (happy, sad, etc.)
+    images = ExpressionImageSerializer(many=True, read_only=True)
+
+class ExpressionGroupListSerializer(serializers.Serializer):
+    age_group = serializers.CharField(read_only=True)
+    expressions = ExpressionGroupSerializer(many=True, read_only=True)

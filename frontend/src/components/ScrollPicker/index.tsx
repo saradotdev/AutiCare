@@ -6,11 +6,9 @@ import { MyText } from "../MyText";
 
 const ScrollPicker: React.FC = () => {
   const initialData = [
-    "2-3 years",
-    "4-6 years",
-    "7-9 years",
-    "10-12 years",
-    "13-15 years",
+    "3-5 years",
+    "6-8 years",
+    "9-12 years",
   ];
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
