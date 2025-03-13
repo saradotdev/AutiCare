@@ -27,6 +27,7 @@ export const loginUser = async (email: string, password: string) => {
     });
 
     const token = response.data.access; // JWT access token from backend
+    console.log(token);
     await AsyncStorage.setItem("jwtToken", token); // storing token in storage
 
     return response.data;

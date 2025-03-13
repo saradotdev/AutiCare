@@ -18,6 +18,11 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
   },
+  buttonRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
   button: {
     width: 100,
     fontFamily: theme.comicSansMS,
@@ -26,5 +31,10 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
     marginHorizontal: 5,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -5,6 +5,7 @@ class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = [
+            'id',
             'first_name', 'last_name', 'age', 'gender',
             'speech_level', 'time_of_practice', 'profile_picture'
         ]
