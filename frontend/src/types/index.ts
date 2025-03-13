@@ -80,3 +80,10 @@ export interface ScoreCardProps {
   score: number;
   total: number;
 }
+
+export interface Expression {
+  id: string;
+  name: string;
+  imageUrl: string;
+  isCorrect: boolean;
+}

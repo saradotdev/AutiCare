@@ -14,6 +14,7 @@ import random
 import logging
 from django.conf import settings
 from django.urls import reverse
+from django.http import HttpResponse
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -399,7 +400,7 @@ def serve_facial_expression(request, expression_type, filename):
         # Determine the content type based on the file extension
         content_type = 'image/svg+xml' if filename.lower().endswith('.svg') else 'image/jpeg'
         
-        return Response(file_content, content_type=content_type)
+        return HttpResponse(file_content, content_type=content_type)
     except Exception as e:
         logger.error(f"Error serving image {file_path}: {str(e)}")
         return Response(
