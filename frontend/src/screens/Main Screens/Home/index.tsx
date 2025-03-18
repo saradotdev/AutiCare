@@ -66,26 +66,25 @@ export default function Home() {
         <MyText>Guardian</MyText>
       </MyButton>
 
-      <FlatList
-        data={loading ? [] : data} // Pass empty array while loading
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <GameCard
-            title={item.title}
-            color={item.color}
-            Image={item.Image}
-            onPress={() => navigation.navigate(item.screen as never)}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          loading ? (
-            <View style={styles.loader}>
-              <ActivityIndicator size="large" color={theme.colorSummerSky} />
-            </View>
-          ) : null
-        }
-      />
+      {loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color={theme.colorSummerSky} />
+        </View>
+      ) : (
+        <FlatList
+          data={loading ? [] : data} // Pass empty array while loading
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <GameCard
+              title={item.title}
+              color={item.color}
+              Image={item.Image}
+              onPress={() => navigation.navigate(item.screen as never)}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </ImageBackground>
   );
 }

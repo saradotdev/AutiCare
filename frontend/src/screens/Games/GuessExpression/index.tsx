@@ -20,7 +20,15 @@ const gameBg = require("../../../assets/images/games/Guess The Expression/Backgr
 
 export default function GuessExpression() {
   const [loading, setLoading] = useState(true);
+  const [score, setScore] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [cachedSvgs, setCachedSvgs] = useState<{ [key: string]: string }>({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalText, setModalText] = useState("");
+  const confettiRef = useRef<any>();
+  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+
+  /* States for age groups 3-5 and 6-8 */
   const [expressions, setExpressions] = useState<
     { name: string; image_url: string }[]
   >([]);
@@ -28,167 +36,182 @@ export default function GuessExpression() {
     name: string;
     image_url: string;
   } | null>(null);
-  const [score, setScore] = useState(0);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalText, setModalText] = useState("");
-  const confettiRef = useRef<any>();
   const [selectedExpression, setSelectedExpression] = useState<string | null>(
     null,
   );
+  const [shuffledOptions, setShuffledOptions] = useState<
+    { name: string; image_url: string }[]
+  >([]);
   const buttonScales = useRef<{ [key: string]: Animated.Value }>({}).current;
-  const [cachedSvgs, setCachedSvgs] = useState<{ [key: string]: string }>({});
 
-  // special handling for age group 9-12 (3 images, 1 expression)
+  /* States for age group 9-12 */
   const [imagesData, setImagesData] = useState<any[]>([]);
-  const [ageGroup, setAgeGroup] = useState<string | null>(null);
   const [currentType, setCurrentType] = useState<string | null>(null);
   const [currentOptions, setCurrentOptions] = useState<
     { id: string; image_url: string; is_correct: boolean }[]
   >([]);
 
+  /* Fetch expressions and set initial game state */
   useEffect(() => {
-    fetchFacialExpressions().then(async (data) => {
-      if (data && (data.images || data.expressions)) {
-        setAgeGroup(data.age_group);
+    const initializeGame = async () => {
+      const data = await fetchFacialExpressions();
+      if (!data || (!data.images && !data.expressions)) return;
 
-        if (data.age_group === "3-5" || data.age_group === "6-8") {
-          const formattedExpressions: { name: string; image_url: string }[] =
-            data.images.map((item: any) => ({
-              name: item.type.charAt(0).toUpperCase() + item.type.slice(1),
-              image_url: item.image_url,
-            }));
-
-          const svgCache: { [key: string]: string } = {};
-
-          await Promise.all(
-            formattedExpressions.map(async (exp) => {
-              const response = await fetch(exp.image_url);
-              svgCache[exp.name] = await response.text();
-            }),
-          );
-
-          setCachedSvgs(svgCache);
-
-          setExpressions(formattedExpressions);
-          setCurrentExpression(formattedExpressions[0]);
-
-          // Initialize button scales
-          formattedExpressions.forEach((exp) => {
-            if (!buttonScales[exp.name]) {
-              buttonScales[exp.name] = new Animated.Value(1);
-            }
-          });
-        }
-
-        if (data.age_group === "9-12") {
-          // Pick a random expression & three images (one correct, two random)
-          const formattedImages = data.expressions.map((item: any) => ({
-            name: item.type.charAt(0).toUpperCase() + item.type.slice(1),
-            images: item.images.map((img: any) => ({
-              id: img.id,
-              image_url: img.image_url,
-              is_correct: img.is_correct,
-            })),
-          }));
-
-          setImagesData(formattedImages);
-
-          const svgCache: { [key: string]: string } = {};
-
-          await Promise.all(
-            formattedImages.flatMap((item: any) =>
-              item.images.map(async (img: any) => {
-                const response = await fetch(img.image_url);
-                svgCache[img.image_url] = await response.text();
-              }),
-            ),
-          );
-
-          setCachedSvgs(svgCache);
-
-          const currentSet = formattedImages[0];
-          setCurrentType(currentSet.name);
-          setCurrentOptions(currentSet.images);
-        }
+      setAgeGroup(data.age_group);
+      if (data.age_group === "3-5" || data.age_group === "6-8") {
+        await setupYoungAgeGroup(data.images);
+      } else if (data.age_group === "9-12") {
+        await setupOlderAgeGroup(data.expressions);
       }
 
       setLoading(false);
-    });
+    };
+
+    initializeGame();
   }, []);
 
+  /* Shuffle array */
+  const shuffleArray = (array: any[]) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
+  /* Setup for age groups 3-5 and 6-8 */
+  const setupYoungAgeGroup = async (images: any[]) => {
+    let formattedExpressions = images.map((item) => ({
+      name: capitalize(item.type),
+      image_url: item.image_url,
+    }));
+
+    const svgCache = await fetchSvgCache(formattedExpressions);
+    setCachedSvgs(svgCache);
+
+    setExpressions(formattedExpressions);
+    setCurrentExpression(formattedExpressions[0]);
+
+    setShuffledOptions(shuffleArray([...formattedExpressions]));
+
+    // Initialize button scales
+    formattedExpressions.forEach((exp) => {
+      if (!buttonScales[exp.name]) {
+        buttonScales[exp.name] = new Animated.Value(1);
+      }
+    });
+  };
+
+  /* Setup for age group 9-12 */
+  const setupOlderAgeGroup = async (expressionsData: any[]) => {
+    const formattedImages = expressionsData.map((item) => ({
+      name: capitalize(item.type),
+      images: item.images.map((img: any) => ({
+        id: img.id,
+        image_url: img.image_url,
+        is_correct: img.is_correct,
+      })),
+    }));
+
+    setImagesData(formattedImages);
+
+    const svgCache = await fetchSvgCache(
+      formattedImages.flatMap((item) => item.images),
+    );
+    setCachedSvgs(svgCache);
+
+    setCurrentType(formattedImages[0].name);
+    setCurrentOptions(formattedImages[0].images);
+  };
+
+  /* Fetch and cache SVG images */
+  const fetchSvgCache = async (
+    items: { name?: string; image_url: string }[],
+  ) => {
+    const cache: { [key: string]: string } = {};
+    await Promise.all(
+      items.map(async (item) => {
+        const response = await fetch(item.image_url);
+        cache[item.name ?? item.image_url] = await response.text();
+      }),
+    );
+    return cache;
+  };
+
+  /* Capitalize first letter of a string */
+  const capitalize = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
+  /* Handle user guesses */
   const handleGuess = (guess: string | boolean) => {
-    // in case of ages 3-5 and 6-8
     if (typeof guess === "string") {
-      setSelectedExpression(guess);
+      handleYoungAgeGroupGuess(guess);
+    } else {
+      handleOlderAgeGroupGuess(guess);
+    }
+  };
 
-      if (!buttonScales[guess]) return;
+  /* Handle guess for age groups 3-5 and 6-8 */
+  const handleYoungAgeGroupGuess = (guess: string) => {
+    setSelectedExpression(guess);
+    animateButton(guess);
 
-      // Button animation
-      Animated.sequence([
-        Animated.timing(buttonScales[guess], {
-          toValue: 1.1,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-        Animated.timing(buttonScales[guess], {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-      ]).start();
+    if (guess === currentExpression?.name) {
+      showModal("Yay!!\nExcellent", true);
+      setTimeout(() => moveToNextExpression(), 2000);
+    } else {
+      showModal("Oops!!\nTry Again");
+    }
+  };
 
-      if (guess === currentExpression?.name) {
-        // correct guess: showing modal and changing image
-        setScore(score + 1);
-        setModalText("Yay!!\nExcellent");
-        confettiRef?.current?.start();
-        setModalVisible(true);
+  /* Handle guess for age group 9-12 */
+  const handleOlderAgeGroupGuess = (isCorrect: boolean) => {
+    if (isCorrect) {
+      showModal("Yay!!\nExcellent", true);
+      setTimeout(() => moveToNextImageSet(), 2000);
+    } else {
+      showModal("Oops!!\nTry Again");
+    }
+  };
 
-        setTimeout(() => {
-          setModalVisible(false);
-          if (currentIndex + 1 < expressions.length) {
-            setCurrentIndex((prev) => prev + 1);
-            setSelectedExpression(null);
-            setCurrentExpression(expressions[currentIndex + 1]);
-          }
-        }, 2000);
-      } else {
-        // wrong guess: showing modal but keeping the image
-        setModalText("Oops!!\nTry Again");
-        setModalVisible(true);
+  /* Animate button press */
+  const animateButton = (button: string) => {
+    if (!buttonScales[button]) return;
+    Animated.sequence([
+      Animated.timing(buttonScales[button], {
+        toValue: 1.1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonScales[button], {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
-        setTimeout(() => {
-          setModalVisible(false);
-          setSelectedExpression(null);
-        }, 2000);
-      }
-    } else if (typeof guess === "boolean") {
-      // 9-12 age group
-      if (guess) {
-        // correct guess: showing modal and changing image
-        setScore(score + 1);
-        setModalText("Yay!!\nExcellent");
-        confettiRef?.current?.start();
-        setModalVisible(true);
+  /* Show modal with message */
+  const showModal = (message: string, confetti: boolean = false) => {
+    setScore(score + 1);
+    setModalText(message);
+    setModalVisible(true);
+    if (confetti) confettiRef.current?.start();
+    setTimeout(() => setModalVisible(false), 2000);
+  };
 
-        setTimeout(() => {
-          setModalVisible(false);
-          // Move to the next set of images
-          if (currentIndex + 1 < imagesData.length) {
-            setCurrentIndex((prev) => prev + 1);
-            setCurrentType(imagesData[currentIndex + 1].name);
-            setCurrentOptions(imagesData[currentIndex + 1].images);
-          }
-        }, 2000);
-      } else {
-        // wrong guess: showing modal but keeping the image
-        setModalText("Oops!!\nTry Again");
-        setModalVisible(true);
+  /* Move to next expression (young age group) */
+  const moveToNextExpression = () => {
+    setSelectedExpression(null);
+    if (currentIndex + 1 < expressions.length) {
+      setCurrentIndex((prev) => prev + 1);
+      setCurrentExpression(expressions[currentIndex + 1]);
+      setShuffledOptions(shuffleArray(shuffledOptions));
+    }
+  };
 
-        setTimeout(() => {
-          setModalVisible(false);
-        }, 2000);
-      }
+  /* Move to next image set (age group 9-12) */
+  const moveToNextImageSet = () => {
+    if (currentIndex + 1 < imagesData.length) {
+      setCurrentIndex((prev) => prev + 1);
+      setCurrentType(imagesData[currentIndex + 1].name);
+      setCurrentOptions(imagesData[currentIndex + 1].images);
     }
   };
 
@@ -201,8 +224,8 @@ export default function GuessExpression() {
         <View style={styles.loader}>
           <ActivityIndicator size="large" color={theme.colorSummerSky} />
         </View>
-      ) : /* Show expression image and row of buttons for age groups 3-5 and 6-8 */
-      (ageGroup === "3-5" || ageGroup === "6-8") && currentExpression ? (
+      ) : (ageGroup === "3-5" || ageGroup === "6-8") && currentExpression ? (
+        /* Show 3 expression names and an image for age groups 3-5 and 6-8 */
         <View style={styles.contentContainer}>
           <Images.Title width={"90%"} />
 
@@ -213,7 +236,7 @@ export default function GuessExpression() {
           />
 
           <View style={styles.buttonRow}>
-            {[...new Set(expressions.map((exp) => exp.name))].map(
+            {[...new Set(shuffledOptions.map((exp) => exp.name))].map(
               (uniqueExp) => (
                 <Animated.View
                   key={uniqueExp}
@@ -240,7 +263,7 @@ export default function GuessExpression() {
           </View>
         </View>
       ) : (
-        // Show 3 images for age group 9-12
+        /* Show 3 images and an expression name for age group 9-12 */
         <View style={styles.contentContainer}>
           <Images.Title width={"90%"} />
 
