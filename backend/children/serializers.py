@@ -49,3 +49,24 @@ class ExpressionGroupSerializer(serializers.Serializer):
 class ExpressionGroupListSerializer(serializers.Serializer):
     age_group = serializers.CharField(read_only=True)
     expressions = ExpressionGroupSerializer(many=True, read_only=True)
+
+# Game 2: Match and Sort Game Serializers
+class BucketSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)  # Unique identifier for the bucket
+    color = serializers.CharField(read_only=True)  # Color of the bucket (blue, green, etc.)
+    shape_type = serializers.CharField(read_only=True, required=False)  # Shape type for age group 6-8
+    image_url = serializers.URLField(read_only=True)  # URL to the bucket image
+
+class FallingObjectSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)  # Unique identifier for tracking
+    color = serializers.CharField(read_only=True)  # Color of the object
+    shape_type = serializers.CharField(read_only=True, required=False)  # Shape type for age group 6-8
+    target_bucket_id = serializers.CharField(read_only=True)  # ID of the bucket this object should go to
+    image_url = serializers.URLField(read_only=True)  # URL to the object image
+
+class MatchAndSortGameSerializer(serializers.Serializer):
+    age_group = serializers.CharField(read_only=True)  # The age group (3-5, 6-8, 9-12)
+    difficulty = serializers.IntegerField(read_only=True)  # Game difficulty level (1, 2, 3)
+    shape_type = serializers.CharField(read_only=True)  # The shape being used (triangle, circle, etc.)
+    buckets = BucketSerializer(many=True, read_only=True)  # List of bucket containers
+    falling_objects = FallingObjectSerializer(many=True, read_only=True)  # List of objects to sort
