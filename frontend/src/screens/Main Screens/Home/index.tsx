@@ -12,7 +12,7 @@ import { GameCard, MyButton, MyText } from "../../../components";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { GameCard1, GameCard2 } from "../../../assets";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Game } from "../../../types";
 

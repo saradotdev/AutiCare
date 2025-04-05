@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 export default function ForgotPassword() {

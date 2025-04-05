@@ -19,6 +19,8 @@ urlpatterns = [
     path('api/auth/register/', UserCreateView.as_view(), name='register'),
     path('api/auth/login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Facial Expressions Game endpoints
     path('api/children/<int:child_id>/facial-expressions/', facial_expressions_for_child, name='facial_expressions'),
     path('api/facial-expressions/<str:expression_type>/<str:filename>', serve_facial_expression, name='serve_facial_expression'),
     

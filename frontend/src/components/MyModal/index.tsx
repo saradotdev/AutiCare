@@ -5,7 +5,7 @@ import { MyModalProps } from "../../types";
 import theme from "../../../theme";
 import { MyButton } from "../MyButton";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 const MyModal: React.FC<MyModalProps> = ({

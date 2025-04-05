@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { registerUser } from "../../../api/authApi";
 
 export default function InputPassword({ route }: any) {

@@ -19,7 +19,7 @@ import { SvgXml } from "react-native-svg";
 const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
 
 export default function GuessExpression() {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [score, setScore] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cachedSvgs, setCachedSvgs] = useState<{ [key: string]: string }>({});
@@ -64,7 +64,7 @@ export default function GuessExpression() {
         await setupOlderAgeGroup(data.expressions);
       }
 
-      setLoading(false);
+      setIsLoading(false);
     };
 
     initializeGame();
@@ -220,7 +220,7 @@ export default function GuessExpression() {
       <View style={styles.overlay}></View>
       <GameAppBar title="Guess the Expression" instructions={instructions} />
 
-      {loading ? (
+      {isLoading ? (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color={theme.colorSummerSky} />
         </View>
