@@ -19,4 +19,5 @@ export type RootStackParamList = {
   Home: undefined;
   GuessExpression: undefined;
   MatchAndSort: undefined;
+  SocialScenario: undefined;
 };

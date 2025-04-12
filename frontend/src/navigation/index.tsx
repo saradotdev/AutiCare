@@ -14,6 +14,7 @@ import {
   ResetPassword,
   SetGoal,
   SignIn,
+  SocialScenario,
   SpeechLevel,
   VerificationCode,
   Welcome,
@@ -39,6 +40,7 @@ export const Navigation = () => (
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="GuessExpression" component={GuessExpression} />
       <Stack.Screen name="MatchAndSort" component={MatchAndSort} />
+      <Stack.Screen name="SocialScenario" component={SocialScenario} />
     </Stack.Navigator>
   </NavigationContainer>
 );

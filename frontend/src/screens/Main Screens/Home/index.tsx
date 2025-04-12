@@ -33,6 +33,13 @@ const GAMES: Game[] = [
     Image: () => <GameCard2 />,
     screen: "MatchAndSort",
   },
+  {
+    id: "3",
+    title: "Social Scenario",
+    color: theme.colorCoralRed,
+    Image: () => <GameCard1 />,
+    screen: "SocialScenario",
+  },
 ];
 
 export default function Home() {

@@ -13,3 +13,4 @@ export { default as SetGoal } from "./Child Details Screens/SetGoal";
 export { default as Home } from "./Main Screens/Home";
 export { default as GuessExpression } from "./Games/GuessExpression";
 export { default as MatchAndSort } from "./Games/MatchAndSort";
+export { default as SocialScenario } from "./Games/SocialScenario";

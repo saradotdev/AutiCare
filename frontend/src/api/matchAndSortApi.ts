@@ -9,7 +9,7 @@ export const fetchMatchAndSortGameAssets = async () => {
     if (!childId) throw new Error("Child ID not found");
 
     const response = await fetch(
-      `${API_URL}children/${childId}/match-and-sort/3`,
+      `${API_URL}children/${childId}/match-and-sort`,
       {
         method: "GET",
         headers: {
