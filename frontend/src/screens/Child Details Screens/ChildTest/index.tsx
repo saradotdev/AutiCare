@@ -4,7 +4,7 @@ import { ChildTestImg } from "../../../assets";
 import { MyButton, MyText } from "../../../components";
 import theme from "../../../../theme";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 

@@ -4,7 +4,7 @@ import { MyAppBar, MyButton, MyInput, MyText } from "../../../components";
 import theme from "../../../../theme";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 
 export default function ResetPassword() {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();

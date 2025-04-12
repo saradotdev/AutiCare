@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View } from "react-native";
 import { ChildDetails, MyRadioGroup } from "../../../components";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -35,7 +35,7 @@ export default function SpeechLevel() {
             { label: "Verbal", value: "verbal" },
           ]}
           defaultValue={speechLevel}
-          onSelect={(value) => {
+          onSelect={(value: string) => {
             setSpeechLevel(value);
           }}
         />
