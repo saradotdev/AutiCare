@@ -417,16 +417,14 @@ def match_and_sort_game(request, child_id, difficulty=1):
     API endpoint for match and sort game providing buckets and falling objects to sort
     
     For age group 3-5:
-    - Returns triangle buckets and falling triangle shapes
-    - Different difficulty levels:
-        - Difficulty 1: 2 buckets, 8 falling objects
-        - Difficulty 2: 3 buckets, 8 falling objects
-        - Difficulty 3: 4 buckets, 8 falling objects
+    - Returns color buckets from general_buckets folder
+    - Falling objects are triangle shapes with colors matching buckets
+    - Matching is based on color only
     
     For age group 6-8:
-    - Returns buckets of different shapes (all blue)
-    - Falling objects are different shapes (all blue)
-    - Matching is based on shape type instead of color
+    - Returns buckets of different shapes (all from general_buckets folder)
+    - Falling objects are shapes of different colors
+    - Matching is based on shape type only
     
     For age group 9-12:
     - Returns buckets with different shapes AND colors
@@ -461,11 +459,10 @@ def match_and_sort_game(request, child_id, difficulty=1):
         
         # Get game data based on age group and difficulty
         if age_group == "3-5":
-            # For age group 3-5, only triangles, matching by color
-            shape_type = "triangle"
-            game_data = _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type)
+            # For age group 3-5, color matching with general buckets
+            game_data = _get_match_and_sort_game_data_3_5(request, age_group, difficulty)
         elif age_group == "6-8":
-            # For age group 6-8, matching by shape, all blue
+            # For age group 6-8, matching by shape, all from general_buckets
             game_data = _get_match_and_sort_game_data_6_8(request, age_group, difficulty)
         else:  # age_group == "9-12"
             # For age group 9-12, matching by both shape AND color
@@ -517,46 +514,37 @@ def _validate_age_for_match_and_sort(age):
     # Not a supported age
     return None
 
-def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type):
+def _get_match_and_sort_game_data_3_5(request, age_group, difficulty):
     """
     Generate game data for match and sort game for age group 3-5 (color matching)
+    - Buckets are from the general_buckets folder with different colors
+    - Falling objects can be any shape but must match the bucket color
     
     Args:
         request: The HTTP request
         age_group: The age group of the child
         difficulty: Game difficulty level (1-3)
-        shape_type: Type of shape to use (triangle, etc.)
         
     Returns:
         dict: Game data with buckets and falling objects
     """
-    # Directory paths for bucket and shape images
-    bucket_dir = os.path.join(settings.BASE_DIR, 'matchandsort_images', 'buckets', shape_type)
-    shape_dir = os.path.join(settings.BASE_DIR, 'matchandsort_images', 'shapes', shape_type)
+    # Get available colors from general buckets
+    general_bucket_dir = os.path.join(settings.BASE_DIR, 'matchandsort_images', 'buckets', 'general_buckets')
     
     # Get available bucket colors
     available_bucket_colors = []
     try:
-        bucket_files = os.listdir(bucket_dir)
+        bucket_files = os.listdir(general_bucket_dir)
         for file in bucket_files:
-            if file.endswith('.svg'):
+            if file.endswith('.svg') and file not in ["pentagon.svg", "semicircle.svg", "sunburst.svg", "triangle.svg"]:
                 color = os.path.splitext(file)[0]
                 available_bucket_colors.append(color)
     except Exception as e:
-        logger.error(f"Error reading bucket directory: {str(e)}")
-        available_bucket_colors = ["blue", "green", "pink", "purple", "yellow"]
+        logger.error(f"Error reading general bucket directory: {str(e)}")
+        available_bucket_colors = ["blue", "green", "pink", "light_blue", "yellow"]
     
-    # Get available shape colors
-    available_shape_colors = []
-    try:
-        shape_files = os.listdir(shape_dir)
-        for file in shape_files:
-            if file.endswith('.svg'):
-                color = os.path.splitext(file)[0]
-                available_shape_colors.append(color)
-    except Exception as e:
-        logger.error(f"Error reading shape directory: {str(e)}")
-        available_shape_colors = ["blue", "green", "pink", "purple", "yellow"]
+    # Available shape types for falling objects
+    available_shape_types = ["triangle", "pentagon", "semicircle", "sunburst"]
     
     # Determine number of buckets based on difficulty
     num_buckets = 2
@@ -581,14 +569,9 @@ def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type
     for i, color in enumerate(selected_bucket_colors):
         bucket_id = f"bucket_{i+1}"
         
-        # Bucket image URL
+        # Bucket image URL - using general bucket with color
         bucket_url = request.build_absolute_uri(
-            reverse('serve_game_asset', kwargs={
-                'game_type': 'matchandsort',
-                'asset_type': 'buckets',
-                'shape_type': shape_type,
-                'filename': f"{color}.svg"
-            })
+            f"/api/game-assets/matchandsort/buckets/general_buckets/{color}.svg"
         )
         
         buckets.append({
@@ -613,13 +596,46 @@ def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type
     # Shuffle the colors
     random.shuffle(matching_colors)
     
-    # Create the falling objects
+    # Create the falling objects with random shapes
     for i in range(num_objects):
         color = matching_colors[i]
         object_id = f"object_{i+1}"
         
         # Find the matching bucket
         target_bucket = next(b for b in buckets if b['color'] == color)
+        
+        # Choose a random shape for this object
+        shape_type = random.choice(available_shape_types)
+        
+        # Verify the file exists for this shape and color combination
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'matchandsort_images',
+            'shapes',
+            shape_type,
+            f"{color}.svg"
+        )
+        
+        # If file doesn't exist, try another shape
+        if not os.path.exists(file_path):
+            # Try each shape type until we find one that has this color
+            found_shape = False
+            for alt_shape in available_shape_types:
+                alt_path = os.path.join(
+                    settings.BASE_DIR,
+                    'matchandsort_images',
+                    'shapes',
+                    alt_shape,
+                    f"{color}.svg"
+                )
+                if os.path.exists(alt_path):
+                    shape_type = alt_shape
+                    found_shape = True
+                    break
+            
+            # If no shape found with this color, default to triangle
+            if not found_shape:
+                shape_type = "triangle"  # Default to triangle if no other shape has this color
         
         # Object image URL
         object_url = request.build_absolute_uri(
@@ -634,6 +650,7 @@ def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type
         falling_objects.append({
             'id': object_id,
             'color': color,
+            'shape_type': shape_type,  # Include shape_type in the response
             'target_bucket_id': target_bucket['id'],
             'image_url': object_url
         })
@@ -642,7 +659,7 @@ def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type
     game_data = {
         'age_group': age_group,
         'difficulty': difficulty,
-        'shape_type': shape_type,
+        'shape_type': 'general',  # Using general buckets, not a specific shape
         'buckets': buckets,
         'falling_objects': falling_objects
     }
@@ -651,7 +668,10 @@ def _get_match_and_sort_game_data_3_5(request, age_group, difficulty, shape_type
 
 def _get_match_and_sort_game_data_6_8(request, age_group, difficulty):
     """
-    Generate game data for match and sort game for age group 6-8 (shape matching, blue color)
+    Generate game data for match and sort game for age group 6-8 (shape matching)
+    - Buckets are from general_buckets folder (no colors)
+    - Falling objects are shapes of different colors
+    - Matching is based on shape type only
     
     Args:
         request: The HTTP request
@@ -663,6 +683,9 @@ def _get_match_and_sort_game_data_6_8(request, age_group, difficulty):
     """
     # Get available shape types
     available_shape_types = ["triangle", "pentagon", "semicircle", "sunburst"]
+    
+    # Available colors for falling objects
+    available_colors = ["blue", "green", "pink", "light_blue", "yellow"]
     
     # Determine number of buckets based on difficulty
     num_buckets = 2
@@ -682,25 +705,43 @@ def _get_match_and_sort_game_data_6_8(request, age_group, difficulty):
     random.shuffle(available_shape_types)
     selected_shape_types = available_shape_types[:num_buckets]
     
-    # Create bucket data
+    # Create bucket data using general buckets (no colors)
     buckets = []
     for i, shape_type in enumerate(selected_shape_types):
         bucket_id = f"bucket_{i+1}"
         
-        # Bucket image URL - all buckets are blue
-        bucket_url = request.build_absolute_uri(
-            reverse('serve_game_asset', kwargs={
-                'game_type': 'matchandsort',
-                'asset_type': 'buckets',
-                'shape_type': shape_type,
-                'filename': "blue.svg"
-            })
+        # Use the shape type directly for the filename
+        file_name = f"{shape_type}.svg"
+        
+        # Verify the file exists in the general_buckets folder
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'matchandsort_images',
+            'buckets',
+            'general_buckets',
+            file_name
         )
+        
+        # If file doesn't exist, try the specific folder with blue
+        if not os.path.exists(file_path):
+            logger.warning(f"General bucket not found for {shape_type}, using shaped bucket with blue color")
+            bucket_url = request.build_absolute_uri(
+                reverse('serve_game_asset', kwargs={
+                    'game_type': 'matchandsort',
+                    'asset_type': 'buckets',
+                    'shape_type': shape_type,
+                    'filename': "blue.svg"
+                })
+            )
+        else:
+            # Use the general bucket
+            bucket_url = request.build_absolute_uri(
+                f"/api/game-assets/matchandsort/buckets/general_buckets/{file_name}"
+            )
         
         buckets.append({
             'id': bucket_id,
-            'color': 'blue',
-            'shape_type': shape_type,  # Add shape_type property
+            'shape_type': shape_type,
             'image_url': bucket_url
         })
     
@@ -720,28 +761,44 @@ def _get_match_and_sort_game_data_6_8(request, age_group, difficulty):
     # Shuffle the shapes
     random.shuffle(matching_shapes)
     
-    # Create the falling objects
+    # Create the falling objects with random colors
     for i in range(num_objects):
         shape_type = matching_shapes[i]
         object_id = f"object_{i+1}"
         
-        # Find the matching bucket
+        # Find the matching bucket (match by shape only)
         target_bucket = next(b for b in buckets if b['shape_type'] == shape_type)
         
-        # Object image URL - all objects are blue
+        # Randomly select a color for this object
+        color = random.choice(available_colors)
+        
+        # Verify the file exists for this shape and color combination
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'matchandsort_images',
+            'shapes',
+            shape_type,
+            f"{color}.svg"
+        )
+        
+        # If file doesn't exist, default to blue
+        if not os.path.exists(file_path):
+            color = "blue"
+        
+        # Object image URL
         object_url = request.build_absolute_uri(
             reverse('serve_game_asset', kwargs={
                 'game_type': 'matchandsort',
                 'asset_type': 'shapes',
                 'shape_type': shape_type,
-                'filename': "blue.svg"
+                'filename': f"{color}.svg"
             })
         )
         
         falling_objects.append({
             'id': object_id,
-            'color': 'blue',
-            'shape_type': shape_type,  # Add shape_type property
+            'color': color,
+            'shape_type': shape_type,
             'target_bucket_id': target_bucket['id'],
             'image_url': object_url
         })
@@ -761,118 +818,123 @@ def _get_match_and_sort_game_data_9_12(request, age_group, difficulty):
     """
     Generate game data for match and sort game for age group 9-12 (matching by both shape AND color)
     
+    For each difficulty level:
+    - Always generates 4 sets with 2 falling objects per set (8 total objects)
+    - Difficulty 1: 2 buckets per set (8 total buckets)
+    - Difficulty 2: 3 buckets per set (12 total buckets)
+    - Difficulty 3: 4 buckets per set (16 total buckets)
+    
     Args:
         request: The HTTP request
         age_group: The age group of the child
         difficulty: Game difficulty level (1-3)
         
     Returns:
-        dict: Game data with buckets and falling objects
+        dict: Game data with bucket sets, each containing its own buckets and falling objects
     """
     # Available shape types and colors
     available_shape_types = ["triangle", "pentagon", "semicircle", "sunburst"]
-    available_colors = ["blue", "green", "pink", "purple", "yellow"]
+    available_colors = ["blue", "green", "pink", "light_blue", "yellow"]
     
-    # Determine number of combinations based on difficulty
-    # Each combination is a unique shape+color pairing
-    num_combinations = 2
-    if difficulty == 2:
-        num_combinations = 3
-    elif difficulty == 3:
-        num_combinations = 4
+    # Always 4 sets for all difficulty levels
+    num_sets = 4
     
-    # Create combination pairs (shape+color) for buckets
-    combinations = []
+    # Number of buckets per set depends on difficulty
+    buckets_per_set = difficulty + 1  # 2, 3, or 4 buckets
     
-    # Make sure we have enough combinations available
-    max_possible_combinations = min(len(available_shape_types), len(available_colors))
-    if max_possible_combinations < num_combinations:
-        logger.warning(f"Not enough combinations available. Needed {num_combinations}, found {max_possible_combinations}")
-        num_combinations = max_possible_combinations
+    # Objects per set is always 2
+    objects_per_set = 2
     
-    # Create unique shape+color combinations
-    shape_types_to_use = random.sample(available_shape_types, num_combinations)
-    colors_to_use = random.sample(available_colors, num_combinations)
+    # Create bucket sets
+    bucket_sets = []
     
-    for i in range(num_combinations):
-        combinations.append({
-            'shape_type': shape_types_to_use[i],
-            'color': colors_to_use[i]
-        })
+    # Keep track of used shape-color combinations to ensure uniqueness across sets
+    used_combinations = set()
     
-    # Create bucket data
-    buckets = []
-    for i, combo in enumerate(combinations):
-        bucket_id = f"bucket_{i+1}"
-        shape_type = combo['shape_type']
-        color = combo['color']
+    for set_idx in range(num_sets):
+        set_id = f"set_{set_idx + 1}"
         
-        # Bucket image URL
-        bucket_url = request.build_absolute_uri(
-            reverse('serve_game_asset', kwargs={
-                'game_type': 'matchandsort',
-                'asset_type': 'buckets',
+        # Get available combinations that haven't been used yet
+        available_combinations = []
+        for shape in available_shape_types:
+            for color in available_colors:
+                combo = (shape, color)
+                if combo not in used_combinations:
+                    available_combinations.append(combo)
+        
+        # Make sure we have enough combinations available
+        if len(available_combinations) < buckets_per_set:
+            # If we've used too many combinations, reset and reuse
+            used_combinations = set()
+            available_combinations = [(shape, color) for shape in available_shape_types for color in available_colors]
+        
+        # Randomly select combinations for this set
+        selected_combinations = random.sample(available_combinations, buckets_per_set)
+        
+        # Mark these combinations as used
+        for combo in selected_combinations:
+            used_combinations.add(combo)
+        
+        # Create buckets for this set
+        buckets = []
+        for i in range(buckets_per_set):
+            bucket_id = f"bucket_{set_idx * buckets_per_set + i + 1}"
+            shape_type, color = selected_combinations[i]
+            
+            # Bucket image URL
+            bucket_url = request.build_absolute_uri(
+                reverse('serve_game_asset', kwargs={
+                    'game_type': 'matchandsort',
+                    'asset_type': 'buckets',
+                    'shape_type': shape_type,
+                    'filename': f"{color}.svg"
+                })
+            )
+            
+            buckets.append({
+                'id': bucket_id,
+                'color': color,
                 'shape_type': shape_type,
-                'filename': f"{color}.svg"
+                'image_url': bucket_url
             })
-        )
         
-        buckets.append({
-            'id': bucket_id,
-            'color': color,
-            'shape_type': shape_type,
-            'image_url': bucket_url
-        })
-    
-    # Create falling objects (8 objects as specified)
-    falling_objects = []
-    num_objects = 8
-    
-    # Make a list of combinations that match our buckets
-    matching_combinations = []
-    for bucket in buckets:
-        matching_combinations.extend([{
-            'shape_type': bucket['shape_type'],
-            'color': bucket['color'],
-            'bucket_id': bucket['id']
-        }] * (num_objects // len(buckets)))
-    
-    # Add extras if needed
-    while len(matching_combinations) < num_objects:
-        bucket = random.choice(buckets)
-        matching_combinations.append({
-            'shape_type': bucket['shape_type'],
-            'color': bucket['color'],
-            'bucket_id': bucket['id']
-        })
-    
-    # Shuffle the combinations
-    random.shuffle(matching_combinations)
-    
-    # Create the falling objects
-    for i in range(num_objects):
-        combo = matching_combinations[i]
-        object_id = f"object_{i+1}"
-        shape_type = combo['shape_type']
-        color = combo['color']
-        target_bucket_id = combo['bucket_id']
+        # Create 2 falling objects for this set
+        falling_objects = []
+        object_counter = set_idx * objects_per_set  # Start count based on set index
         
-        # Object image URL
-        object_url = request.build_absolute_uri(
-            reverse('serve_game_asset', kwargs={
-                'game_type': 'matchandsort',
-                'asset_type': 'shapes',
-                'shape_type': shape_type,
-                'filename': f"{color}.svg"
+        # Randomly select which buckets will have matching objects
+        selected_bucket_indices = random.sample(range(buckets_per_set), objects_per_set)
+        
+        for i in range(objects_per_set):
+            object_id = f"object_{object_counter + i + 1}"
+            
+            # Each object matches one of the randomly selected buckets
+            bucket_index = selected_bucket_indices[i]
+            bucket = buckets[bucket_index]
+            
+            # Object image URL - using the same shape and color as the target bucket
+            object_url = request.build_absolute_uri(
+                reverse('serve_game_asset', kwargs={
+                    'game_type': 'matchandsort',
+                    'asset_type': 'shapes',
+                    'shape_type': bucket['shape_type'],
+                    'filename': f"{bucket['color']}.svg"
+                })
+            )
+            
+            falling_objects.append({
+                'id': object_id,
+                'color': bucket['color'],
+                'shape_type': bucket['shape_type'],
+                'target_bucket_id': bucket['id'],
+                'image_url': object_url
             })
-        )
         
-        falling_objects.append({
-            'id': object_id,
-            'color': color,
-            'shape_type': shape_type,
-            'target_bucket_id': target_bucket_id,
-            'image_url': object_url
+        # Add the completed set
+        bucket_sets.append({
+            'set_id': set_id,
+            'buckets': buckets,
+            'falling_objects': falling_objects
         })
     
     # Construct final game data
@@ -880,8 +942,9 @@ def _get_match_and_sort_game_data_9_12(request, age_group, difficulty):
         'age_group': age_group,
         'difficulty': difficulty,
         'shape_type': 'mixed',  # Multiple shape types
-        'buckets': buckets,
-        'falling_objects': falling_objects
+        'bucket_sets': bucket_sets,
+        'total_buckets': buckets_per_set * num_sets,  # Total number of buckets across all sets
+        'total_objects': objects_per_set * num_sets    # Total number of falling objects (always 8)
     }
     
     return game_data
@@ -895,7 +958,7 @@ def serve_game_asset(request, game_type, asset_type, shape_type, filename):
         request: The HTTP request
         game_type: Type of game (matchandsort, etc.)
         asset_type: Type of asset (buckets, shapes)
-        shape_type: Type of shape (triangle, etc.)
+        shape_type: Type of shape (triangle, etc.) or 'general_buckets' for non-colored buckets
         filename: The file to serve
         
     Returns:
@@ -914,7 +977,8 @@ def serve_game_asset(request, game_type, asset_type, shape_type, filename):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    if shape_type not in ['triangle', 'pentagon', 'semicircle', 'sunburst']:
+    # For shape_type, we now also accept 'general_buckets'
+    if shape_type not in ['triangle', 'pentagon', 'semicircle', 'sunburst', 'general_buckets']:
         return Response(
             {"error": "Invalid shape type"}, 
             status=status.HTTP_400_BAD_REQUEST

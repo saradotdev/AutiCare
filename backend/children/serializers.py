@@ -64,9 +64,17 @@ class FallingObjectSerializer(serializers.Serializer):
     target_bucket_id = serializers.CharField(read_only=True)  # ID of the bucket this object should go to
     image_url = serializers.URLField(read_only=True)  # URL to the object image
 
+class BucketSetSerializer(serializers.Serializer):
+    set_id = serializers.CharField(read_only=True)  # Unique identifier for the set
+    buckets = BucketSerializer(many=True, read_only=True)  # List of buckets in this set
+    falling_objects = FallingObjectSerializer(many=True, read_only=True)  # List of objects for this set
+
 class MatchAndSortGameSerializer(serializers.Serializer):
     age_group = serializers.CharField(read_only=True)  # The age group (3-5, 6-8, 9-12)
     difficulty = serializers.IntegerField(read_only=True)  # Game difficulty level (1, 2, 3)
     shape_type = serializers.CharField(read_only=True)  # The shape being used (triangle, circle, etc.)
-    buckets = BucketSerializer(many=True, read_only=True)  # List of bucket containers
-    falling_objects = FallingObjectSerializer(many=True, read_only=True)  # List of objects to sort
+    buckets = BucketSerializer(many=True, read_only=True, required=False)  # List of bucket containers (for age 3-8)
+    falling_objects = FallingObjectSerializer(many=True, read_only=True, required=False)  # List of objects to sort (for age 3-8)
+    bucket_sets = BucketSetSerializer(many=True, read_only=True, required=False)  # List of bucket sets (for age 9-12)
+    total_buckets = serializers.IntegerField(read_only=True, required=False)  # Total number of buckets (for age 9-12)
+    total_objects = serializers.IntegerField(read_only=True, required=False)  # Total number of objects (for age 9-12)
