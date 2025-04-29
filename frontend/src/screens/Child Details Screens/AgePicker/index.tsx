@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ChildDetails, MyText } from "../../../components";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import theme from "../../../../theme";

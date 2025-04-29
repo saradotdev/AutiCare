@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { MyAppBar, MyButton, MyRadioGroup, MyText } from "../../../components";
 import theme from "../../../../theme";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { createChild } from "../../../api/childrenApi";
@@ -47,7 +47,7 @@ export default function SetGoal() {
           { label: "Engaged", value: "30", sublabel: "30 minutes daily" },
         ]}
         defaultValue={timeOfPractice}
-        onSelect={(value) => setTimeOfPractice(value)}
+        onSelect={(value: string) => setTimeOfPractice(value)}
       />
 
       <View style={styles.ctaContainer}>

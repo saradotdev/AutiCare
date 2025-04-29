@@ -14,6 +14,7 @@ export const styles = StyleSheet.create({
   },
   gameContainer: {
     flex: 1,
+    paddingBottom: 5,
   },
   fallingObjects: {
     flex: 1,
@@ -29,5 +30,10 @@ export const styles = StyleSheet.create({
     justifyContent: "space-around",
     flex: 1,
     paddingBottom: 10,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -16,3 +16,9 @@ export { default as Blue1 } from "./images/games/Match And Sort/Blue/1.svg";
 export { default as Blue2 } from "./images/games/Match And Sort/Blue/2.svg";
 export { default as Green1 } from "./images/games/Match And Sort/Green/1.svg";
 export { default as Green2 } from "./images/games/Match And Sort/Green/2.svg";
+
+// Images for Game: Social Scenario
+export { default as CharacterLeft } from "./images/games/Social Scenario/Character Left.svg";
+export { default as CharacterRight } from "./images/games/Social Scenario/Character Right.svg";
+export { default as BubbleLeft } from "./images/games/Social Scenario/Bubble Left.svg";
+export { default as BubbleRight } from "./images/games/Social Scenario/Bubble Right.svg";

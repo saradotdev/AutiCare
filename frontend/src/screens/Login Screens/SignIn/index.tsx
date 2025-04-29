@@ -3,7 +3,7 @@ import { IconButton, MyAppBar, MyInput, MyText } from "../../../components";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import theme from "../../../../theme";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import { useNavigation } from "@react-navigation/native";
 import { loginUser } from "../../../api/authApi";
 

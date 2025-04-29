@@ -5,7 +5,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../../types/navigation";
+import { RootStackParamList } from "../../../types";
 import theme from "../../../../theme";
 import styles from "./index.styles";
 
