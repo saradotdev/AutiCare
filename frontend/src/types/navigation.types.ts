@@ -17,6 +17,9 @@ export type RootStackParamList = {
 
   // Main Flow
   Home: undefined;
+  Guardian: undefined;
+
+  // Games
   GuessExpression: undefined;
   MatchAndSort: undefined;
   SocialScenario: undefined;

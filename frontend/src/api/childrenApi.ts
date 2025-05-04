@@ -52,7 +52,13 @@ export const fetchData = async () => {
     if (children.length > 0) {
       const childId = children[0].id; // Selecting the first child profile for now
       await AsyncStorage.setItem("childId", childId.toString());
+
+      // Extract time_of_practice from API response and store it for later use
+      const timeOfPractice = children[0].time_of_practice;
+      await AsyncStorage.setItem("timeOfPractice", timeOfPractice.toString());
+
       console.log("Child ID stored:", childId);
+      console.log("Time of practice stored:", timeOfPractice);
     } else {
       console.warn("No child profiles found for this user.");
     }
