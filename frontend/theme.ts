@@ -3,6 +3,7 @@ const theme = {
   colorBackground: "rgba(242, 242, 242, 1)",
   colorWhite: "rgba(255, 255, 255, 1)",
   colorOrangeRed: "rgba(232, 71, 56, 1)",
+  colorLightCrimson: "rgba(255, 78, 81, 1)",
   colorCoralRed: "rgba(235, 116, 92, 1)",
   colorSummerSky: "rgba(55, 178, 255, 1)",
   colorBlue: "rgba(94, 121, 255, 1)",

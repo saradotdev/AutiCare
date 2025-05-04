@@ -4,6 +4,8 @@ import {
   ActivityIndicator,
   ImageBackground,
   FlatList,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { styles } from "./index.styles";
 import { fetchData } from "../../../api/childrenApi";
@@ -15,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Game } from "../../../types";
+import Entypo from "@expo/vector-icons/Entypo";
+import { useSessionTracker } from "../../../hooks";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
@@ -42,9 +46,23 @@ const GAMES: Game[] = [
   },
 ];
 
+const keys = [
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  ["", "0", "⌫"],
+];
+
 export default function Home() {
+  useSessionTracker(); // Start tracking session time for child
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [generatedCode, setGeneratedCode] = useState("");
+
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
@@ -63,12 +81,57 @@ export default function Home() {
     getData();
   }, []);
 
+  useEffect(() => {
+    if (pinInput.length === 4 && pinInput === generatedCode) {
+      setTimeout(() => {
+        setModalVisible(false);
+        setPinInput("");
+        navigation.navigate("Guardian" as never);
+      }, 300);
+    }
+  }, [pinInput]);
+
+  const numberToWords = (numStr: string) => {
+    const digitWords = [
+      "ZERO",
+      "ONE",
+      "TWO",
+      "THREE",
+      "FOUR",
+      "FIVE",
+      "SIX",
+      "SEVEN",
+      "EIGHT",
+      "NINE",
+    ];
+    return numStr
+      .split("")
+      .map((d) => digitWords[parseInt(d)])
+      .join(", ");
+  };
+
+  const handleKeyPress = (key: string) => {
+    if (key === "⌫") {
+      setPinInput((prev) => prev.slice(0, -1));
+    } else if (key !== "") {
+      if (pinInput.length < 4) {
+        setPinInput((prev) => prev + key);
+      }
+    }
+  };
+
   return (
     <ImageBackground source={homeBg} style={styles.container}>
       <MyButton
         textColor={theme.colorWhite}
         style={styles.changeTab}
         icon={<Ionicons name="person" size={24} color="white" />}
+        onPress={() => {
+          const random = Math.floor(1000 + Math.random() * 9000).toString();
+          setGeneratedCode(random);
+          setPinInput("");
+          setModalVisible(true);
+        }}
       >
         <MyText>Guardian</MyText>
       </MyButton>
@@ -92,6 +155,48 @@ export default function Home() {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <Modal transparent visible={modalVisible} animationType="slide">
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Entypo name="cross" size={24} color="white" />
+            </TouchableOpacity>
+            <MyText style={styles.modalTitle}>Grown-Ups Only</MyText>
+            <MyText style={styles.modalText}>
+              We need to make sure that you are a grown-up
+            </MyText>
+            <MyText style={styles.modalSubText}>
+              To access, please enter the code
+            </MyText>
+            <MyText style={styles.code}>{numberToWords(generatedCode)}</MyText>
+            <MyText style={styles.input}>{pinInput}</MyText>
+
+            {/* Number Pad */}
+            <View style={styles.keypadContainer}>
+              {keys.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.row}>
+                  {row.map((key) => (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      hitSlop={20}
+                      key={key}
+                      style={styles.key}
+                      onPress={() => handleKeyPress(key)}
+                      disabled={key === ""}
+                    >
+                      <MyText style={styles.keyText}>{key}</MyText>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
