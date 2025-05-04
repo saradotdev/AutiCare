@@ -14,3 +14,4 @@ export { default as Home } from "./Main Screens/Home";
 export { default as GuessExpression } from "./Games/GuessExpression";
 export { default as MatchAndSort } from "./Games/MatchAndSort";
 export { default as SocialScenario } from "./Games/SocialScenario";
+export { default as WordSpeech } from "./Games/WordSpeech";

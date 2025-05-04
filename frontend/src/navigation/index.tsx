@@ -18,7 +18,9 @@ import {
   SpeechLevel,
   VerificationCode,
   Welcome,
+  WordSpeech,
 } from "../screens";
+import WordSpeechGame from "../screens/Games/WordSpeech/GameScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -41,6 +43,8 @@ export const Navigation = () => (
       <Stack.Screen name="GuessExpression" component={GuessExpression} />
       <Stack.Screen name="MatchAndSort" component={MatchAndSort} />
       <Stack.Screen name="SocialScenario" component={SocialScenario} />
+      <Stack.Screen name="WordSpeech" component={WordSpeech} />
+      <Stack.Screen name="WordSpeechGame" component={WordSpeechGame} />
     </Stack.Navigator>
   </NavigationContainer>
 );

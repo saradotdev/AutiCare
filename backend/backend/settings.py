@@ -194,7 +194,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SIMPLE_JWT = {
     # Set access token expiry to 1 hour
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
 
     # Set refresh token expiry to 7 days
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
