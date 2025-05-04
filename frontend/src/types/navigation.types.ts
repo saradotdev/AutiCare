@@ -18,6 +18,15 @@ export type RootStackParamList = {
   // Main Flow
   Home: undefined;
   Guardian: undefined;
+  Report: undefined;
+
+  // Settings Flow
+  Account: undefined;
+  Notifications: undefined;
+  ChildProfiles: undefined;
+  About: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
 
   // Games
   GuessExpression: undefined;

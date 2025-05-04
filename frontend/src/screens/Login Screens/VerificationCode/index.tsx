@@ -18,7 +18,9 @@ export default function VerificationCode() {
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.replace("ResetPassword")}
+          onPress={() =>
+            navigation.reset({ index: 0, routes: [{ name: "ResetPassword" }] })
+          }
         >
           Reset Password
         </MyButton>

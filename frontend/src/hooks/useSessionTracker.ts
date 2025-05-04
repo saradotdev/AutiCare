@@ -27,13 +27,13 @@ export default function useSessionTracker() {
 
   const stopTimer = () => {
     if (intervalRef.current) {
-      clearInterval(intervalRef.current as any);
+      clearInterval(intervalRef.current);
       intervalRef.current = null;
       console.log("⏹️ Timer stopped");
     }
   };
 
-  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+  const handleAppStateChange = (nextAppState: AppStateStatus) => {
     const wasActive = appState.current === "active";
     const nowActive = nextAppState === "active";
 
@@ -60,4 +60,6 @@ export default function useSessionTracker() {
       subscription.remove();
     };
   }, []);
+
+  return { stopTimer }; // return stopTimer to allow manual stopping of the timer if needed
 }

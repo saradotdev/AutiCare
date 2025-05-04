@@ -1,65 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import theme from "../../../../theme";
 import { MyButton, MyText } from "../../../components";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "./index.styles";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useTimeLimit } from "../../../context";
 
-// Current date
-const today = new Date();
-const formattedDate = format(today, "MMMM do");
+const formattedDate = format(new Date(), "MMMM do");
 
-export default function Guardian() {
+export default function Summary() {
   const [practiceTime, setPracticeTime] = useState<number>(0);
   const [timeSpent, setTimeSpent] = useState<number>(0);
   const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [isTimeExceeded, setIsTimeExceeded] = useState<boolean>(false);
+
+  const [isTimeExceeded, setIsTimeExceeded] = useState(false);
+  const { checkIfTimeExceeded } = useTimeLimit(); // using the context to get the time limit status
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const loadPracticeTimeAndTimeSpent = async () => {
-      const [storedPracticeTime, storedTimeSpent] = await Promise.all([
-        AsyncStorage.getItem("timeOfPractice"),
-        getTimeSpentToday(),
-      ]);
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        const timeExceeded = await checkIfTimeExceeded();
+        setIsTimeExceeded(timeExceeded);
 
-      const parsedPracticeTime = storedPracticeTime
-        ? parseInt(storedPracticeTime)
-        : 0;
-      const formattedTimeSpent = Math.floor((storedTimeSpent || 0) / 60);
+        const storedPracticeTime = await AsyncStorage.getItem("timeOfPractice");
+        const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
+        const storedTimeSpent = await AsyncStorage.getItem(todayKey);
 
-      setPracticeTime(parsedPracticeTime);
-      setTimeSpent(formattedTimeSpent);
+        const parsedPracticeTime = storedPracticeTime
+          ? parseInt(storedPracticeTime)
+          : 0;
+        const parsedTimeSpent = storedTimeSpent ? parseInt(storedTimeSpent) : 0;
+        const timeSpentInMinutes = Math.floor(parsedTimeSpent / 60);
 
-      if (parsedPracticeTime > 0) {
-        const percent = (formattedTimeSpent / parsedPracticeTime) * 100;
-        setProgressPercent(percent);
-      }
+        setPracticeTime(parsedPracticeTime);
+        setTimeSpent(timeSpentInMinutes);
 
-      setIsTimeExceeded(formattedTimeSpent >= parsedPracticeTime);
-    };
+        if (parsedPracticeTime > 0) {
+          const percent = (timeSpentInMinutes / parsedPracticeTime) * 100;
+          setProgressPercent(percent);
+        }
+      };
 
-    loadPracticeTimeAndTimeSpent(); // Load immediately
-
-    const intervalId = setInterval(() => {
-      loadPracticeTimeAndTimeSpent();
-    }, 30000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  // Get the time spent today from AsyncStorage
-  const getTimeSpentToday = async (): Promise<number> => {
-    const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
-    const time = await AsyncStorage.getItem(todayKey);
-    return time ? parseInt(time) : 0;
-  };
+      loadData();
+    }, [checkIfTimeExceeded]),
+  );
 
   return (
     <View>
@@ -84,7 +76,7 @@ export default function Guardian() {
             style={styles.changeTab}
             icon={<FontAwesome name="child" size={24} color="white" />}
             onPress={() => {
-              navigation.navigate("Home");
+              navigation.reset({ index: 0, routes: [{ name: "Home" }] });
             }}
           >
             Child
@@ -92,7 +84,7 @@ export default function Guardian() {
         )}
       </View>
 
-      <View style={styles.content}>
+      <View style={styles.summaryContainer}>
         {/* Date */}
         <View>
           <MyText style={styles.today}>Today</MyText>
@@ -112,6 +104,30 @@ export default function Guardian() {
             />
           </View>
         </View>
+      </View>
+
+      <View style={styles.reportContainer}>
+        <MyText style={styles.reportTitle}>Report</MyText>
+        <View style={styles.infoContainer}>
+          <Ionicons
+            name="information"
+            size={24}
+            color="white"
+            style={styles.infoIcon}
+          />
+          <MyText style={styles.infoText}>
+            Today, {timeSpent} minutes were played
+          </MyText>
+        </View>
+        <MyButton
+          textColor={theme.colorWhite}
+          style={styles.cta}
+          onPress={() => {
+            navigation.navigate("Report");
+          }}
+        >
+          See Detailed Report
+        </MyButton>
       </View>
     </View>
   );

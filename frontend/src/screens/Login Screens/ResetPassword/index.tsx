@@ -22,7 +22,9 @@ export default function ResetPassword() {
         <MyButton
           textColor={theme.colorWhite}
           style={styles.cta}
-          onPress={() => navigation.replace("SignIn")}
+          onPress={() =>
+            navigation.reset({ index: 0, routes: [{ name: "SignIn" }] })
+          }
         >
           Login
         </MyButton>
