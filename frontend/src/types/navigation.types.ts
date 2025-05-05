@@ -32,4 +32,6 @@ export type RootStackParamList = {
   GuessExpression: undefined;
   MatchAndSort: undefined;
   SocialScenario: undefined;
+  WordSpeech: undefined;
+  WordSpeechGame: { level: number };
 };

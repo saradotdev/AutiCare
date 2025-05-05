@@ -16,6 +16,7 @@ import logging
 from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponse
+from django.utils import timezone
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -37,16 +38,28 @@ class ChildViewSet(viewsets.ModelViewSet):
 class SessionViewSet(viewsets.ModelViewSet):
     serializer_class = SessionSerializer
     queryset = Session.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Only show sessions for children belonging to the requesting user
+        return Session.objects.filter(child__user=self.request.user)
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def facial_expressions_for_child(request, child_id):
+def facial_expressions_for_child(request, child_id, session_id=None, difficulty=None):
     """
     API endpoint that returns facial expression images appropriate for a child's age.
     
     - For children aged "3-5" (string or integers 3-5): Returns 10 random images from happy/sad folders
     - For children aged "6-8": Returns 5 random images from all expression folders
+    - For children aged "9-12": Returns images grouped by expression type with correct/incorrect images to identify
+    
+    Parameters:
+        child_id: ID of the child
+        session_id: Optional session ID (if not provided, a new session will be created)
+        difficulty: Optional difficulty level override (1, 2, or 3)
     
     Returns:
         Response: JSON containing list of images with their ID, type, and URL
@@ -54,6 +67,72 @@ def facial_expressions_for_child(request, child_id):
     try:
         # Get the child, ensuring it belongs to the requesting user
         child = Child.objects.get(id=child_id, user=request.user)
+        
+        # Determine difficulty level and session
+        difficulty_level = 1  # Default
+        created_session = False
+        
+        if session_id:
+            # Use existing session
+            try:
+                from activities.models import GameSession
+                session = GameSession.objects.get(id=session_id)
+                # Verify the session belongs to this child
+                if session.child.id != child.id:
+                    return Response(
+                        {"error": "Session does not belong to this child"}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                difficulty_level = session.difficulty_level
+            except (ImportError, GameSession.DoesNotExist):
+                return Response(
+                    {"error": "Session not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        elif difficulty is not None:
+            # Use provided difficulty
+            difficulty_level = difficulty
+            
+            # Validate difficulty
+            if difficulty_level not in [1, 2, 3]:
+                return Response(
+                    {"error": "Invalid difficulty level. Must be 1, 2, or 3."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            # Use difficulty from progress
+            try:
+                from activities.models import GameType, GameProgress
+                game_type = GameType.objects.get(code="FACIAL")
+                progress, created = GameProgress.objects.get_or_create(
+                    child=child, 
+                    game_type=game_type,
+                    defaults={'current_difficulty': 1}
+                )
+                difficulty_level = progress.current_difficulty
+            except (ImportError, GameType.DoesNotExist):
+                # Fallback to default difficulty
+                pass
+        
+        # If no session was provided, create a new one automatically
+        if not session_id:
+            try:
+                from activities.models import GameType, GameSession
+                game_type = GameType.objects.get(code="FACIAL")
+                
+                # Create a new session
+                session = GameSession.objects.create(
+                    child=child,
+                    game_type=game_type,
+                    difficulty_level=difficulty_level
+                )
+                session_id = session.id
+                created_session = True
+                logger.info(f"Automatically created new facial expressions game session {session_id} for child {child_id}")
+            except ImportError:
+                logger.error("Could not import required models to create a session")
+            except Exception as e:
+                logger.error(f"Error creating session: {str(e)}")
         
         # Define valid expressions and default settings
         VALID_EXPRESSIONS = {
@@ -66,16 +145,51 @@ def facial_expressions_for_child(request, child_id):
             'surprise': True
         }
         
-        # Configure settings based on age
-        config = _get_expression_config_for_age(child.age)
+        # Configure settings based on age, considering difficulty level
+        config = _get_expression_config_for_age(child.age, difficulty_level)
         if not config:
             return Response(
-                {"error": "Facial expressions are only available for children aged 3-5 or 6-8"}, 
+                {"error": "Facial expressions are only available for children aged 3-5, 6-8, or 9-12"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # Collect and return images
-        return _get_images_response(request, config, VALID_EXPRESSIONS)
+        if config.get('special_handling'):
+            # For age group 9-12 with special handling
+            response_data = _get_special_images_response(request, config, VALID_EXPRESSIONS)
+            
+            # Convert response data to a mutable dictionary if it's not already
+            if not isinstance(response_data.data, dict):
+                response_dict = dict(response_data.data)
+            else:
+                response_dict = response_data.data
+                
+            # Add session information
+            response_dict['session_id'] = session_id
+            if created_session:
+                response_dict['session_created'] = True
+            response_dict['difficulty'] = difficulty_level
+            
+            # Create new response with updated data
+            return Response(response_dict)
+        else:
+            # For age groups 3-5 and 6-8
+            response_data = _get_images_response(request, config, VALID_EXPRESSIONS)
+            
+            # Convert response data to a mutable dictionary if it's not already
+            if not isinstance(response_data.data, dict):
+                response_dict = dict(response_data.data)
+            else:
+                response_dict = response_data.data
+            
+            # Add session information
+            response_dict['session_id'] = session_id
+            if created_session:
+                response_dict['session_created'] = True
+            response_dict['difficulty'] = difficulty_level
+            
+            # Create new response with updated data
+            return Response(response_dict)
         
     except Child.DoesNotExist:
         logger.warning(f"Child with ID {child_id} not found for user {request.user.id}")
@@ -90,12 +204,13 @@ def facial_expressions_for_child(request, child_id):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-def _get_expression_config_for_age(age):
+def _get_expression_config_for_age(age, difficulty=1):
     """
-    Helper function to determine expression configuration based on child's age
+    Helper function to determine expression configuration based on child's age and difficulty
     
     Args:
         age: The age of the child (string value)
+        difficulty: The difficulty level (1, 2, or 3)
         
     Returns:
         dict: Configuration with expression_types, num_images, age_group, and special handling flags
@@ -104,82 +219,147 @@ def _get_expression_config_for_age(age):
     all_expressions = ['happy', 'sad', 'angry', 'fear', 'disgust', 'neutral', 'surprise']
     default_expressions = ['happy', 'sad']
     
-    # Handle string age ranges only
-    if age == "6-8":
-        return {
-            'expression_types': all_expressions,
-            'num_images': 5,
-            'age_group': "6-8",
-            'special_handling': False
-        }
-    elif age == "3-5":
-        return {
-            'expression_types': default_expressions,
-            'num_images': 5,
-            'age_group': "3-5",
-            'special_handling': False
-        }
+    # Handle different age groups with their difficulty variations
+    if age == "3-5":
+        if difficulty == 1:
+            # Easiest level: Only happy and sad
+            return {
+                'expression_types': default_expressions,
+                'num_images': 4,
+                'age_group': "3-5",
+                'special_handling': False,
+                'difficulty': 1
+            }
+        elif difficulty == 2:
+            # Medium level: Add surprise
+            return {
+                'expression_types': default_expressions + ['surprise'],
+                'num_images': 5,
+                'age_group': "3-5",
+                'special_handling': False,
+                'difficulty': 2
+            }
+        else:  # difficulty == 3
+            # Hardest level: Add angry
+            return {
+                'expression_types': default_expressions + ['surprise', 'angry'],
+                'num_images': 6,
+                'age_group': "3-5",
+                'special_handling': False,
+                'difficulty': 3
+            }
+            
+    elif age == "6-8":
+        if difficulty == 1:
+            # Easiest level: 5 basic expressions
+            return {
+                'expression_types': ['happy', 'sad', 'angry', 'surprise', 'neutral'],
+                'num_images': 5,
+                'age_group': "6-8",
+                'special_handling': False,
+                'difficulty': 1
+            }
+        elif difficulty == 2:
+            # Medium level: Add fear
+            return {
+                'expression_types': ['happy', 'sad', 'angry', 'surprise', 'neutral', 'fear'],
+                'num_images': 6,
+                'age_group': "6-8",
+                'special_handling': False,
+                'difficulty': 2
+            }
+        else:  # difficulty == 3
+            # Hardest level: All expressions
+            return {
+                'expression_types': all_expressions,
+                'num_images': 7,
+                'age_group': "6-8",
+                'special_handling': False,
+                'difficulty': 3
+            }
+            
     elif age == "9-12":
-        return {
-            'expression_types': all_expressions,
-            'num_images': 5,
-            'age_group': "9-12",
-            'special_handling': True,
-            'correct_expressions': 1,  # Number of correct expressions to mark
-            'different_expressions': 3  # Number of different expressions to include
-        }
+        if difficulty == 1:
+            # Easiest level: Only 3 expressions to identify
+            return {
+                'expression_types': ['happy', 'sad', 'angry'],
+                'num_images': 5,
+                'age_group': "9-12",
+                'special_handling': True,
+                'correct_expressions': 1,  # Number of correct expressions to mark
+                'different_expressions': 2,  # Number of different expressions to include
+                'difficulty': 1
+            }
+        elif difficulty == 2:
+            # Medium level: 5 expressions to identify
+            return {
+                'expression_types': ['happy', 'sad', 'angry', 'surprise', 'neutral'],
+                'num_images': 5,
+                'age_group': "9-12",
+                'special_handling': True,
+                'correct_expressions': 1,  # Number of correct expressions to mark
+                'different_expressions': 3,  # Number of different expressions to include
+                'difficulty': 2
+            }
+        else:  # difficulty == 3
+            # Hardest level: All expressions to identify
+            return {
+                'expression_types': all_expressions,
+                'num_images': 5,
+                'age_group': "9-12",
+                'special_handling': True,
+                'correct_expressions': 1,  # Number of correct expressions to mark
+                'different_expressions': 3,  # Number of different expressions to include
+                'difficulty': 3
+            }
     
     # Age doesn't match any valid criteria
     return None
 
 def _get_images_response(request, config, valid_expressions):
     """
-    Helper function to collect and return facial expression images
+    Generate and return the appropriate images response for age groups 3-5 and 6-8
     
     Args:
-        request: The HTTP request object
-        config: Dictionary with expression_types, num_images, and special handling flags
+        request: The HTTP request
+        config: Configuration settings for the age group
         valid_expressions: Dictionary of valid expression types
         
     Returns:
-        Response: JSON response with facial expression images
+        Response: Serialized JSON response with images
     """
-    expression_types = config['expression_types']
-    num_images = config['num_images']
-    age_group = config['age_group']
-    special_handling = config.get('special_handling', False)
+    num_images = config.get('num_images', 5)
+    age_group = config.get('age_group')
+    expressions = config.get('expressions', ['happy', 'sad'])
     
-    # For special handling of 9-12 age group
-    if special_handling:
-        return _get_special_images_response(request, config, valid_expressions)
-    
-    # Standard handling for other age groups
-    # Collect images from selected expression folders
+    # Get a list of available expression images
     all_images = []
     
-    for expression_type in expression_types:
-        # Skip invalid expression types
-        if expression_type not in valid_expressions:
+    # We're combining all required expression types together
+    for expression_type in expressions:
+        if not valid_expressions.get(expression_type, False):
             continue
             
-        expression_dir = os.path.join(settings.BASE_DIR, 'facial_expression_images', expression_type)
+        # Define the path to the expression folder
+        expression_dir = os.path.join(
+            settings.BASE_DIR, 
+            'facial_expression_images',
+            expression_type
+        )
         
-        # Skip directories that don't exist
+        # Check if directory exists
         if not os.path.exists(expression_dir):
             logger.warning(f"Expression directory not found: {expression_dir}")
             continue
-        
-        # Get list of image files in the directory
-        try:
-            image_files = [
-                f for f in os.listdir(expression_dir) 
-                if os.path.isfile(os.path.join(expression_dir, f))
-            ]
             
-            # Add to the combined list with their types
-            all_images.extend([(file, expression_type) for file in image_files])
-        except (FileNotFoundError, PermissionError) as e:
-            logger.error(f"Error accessing directory {expression_dir}: {str(e)}")
+        # Read all images in this expression directory
+        try:
+            image_files = os.listdir(expression_dir)
+            for image_file in image_files:
+                if image_file.endswith(('.jpg', '.png', '.jpeg', '.svg')):
+                    all_images.append((image_file, expression_type))
+        except FileNotFoundError:
+            logger.warning(f"Could not read expression directory: {expression_dir}")
     
     if not all_images:
         return Response(
@@ -412,7 +592,7 @@ def serve_facial_expression(request, expression_type, filename):
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def match_and_sort_game(request, child_id, difficulty=1):
+def match_and_sort_game(request, child_id, session_id=None, difficulty=None):
     """
     API endpoint for match and sort game providing buckets and falling objects to sort
     
@@ -433,7 +613,8 @@ def match_and_sort_game(request, child_id, difficulty=1):
     
     Parameters:
         child_id: ID of the child
-        difficulty: Game difficulty level (1, 2, or 3)
+        session_id: Optional session ID (if not provided, a new session will be created)
+        difficulty: Optional difficulty level override (1, 2, or 3)
         
     Returns:
         Response: JSON with buckets and falling objects
@@ -442,12 +623,71 @@ def match_and_sort_game(request, child_id, difficulty=1):
         # Get the child
         child = Child.objects.get(id=child_id, user=request.user)
         
-        # Validate difficulty
-        if difficulty not in [1, 2, 3]:
-            return Response(
-                {"error": "Invalid difficulty level. Must be 1, 2, or 3."}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Determine difficulty level and session
+        difficulty_level = 1  # Default
+        created_session = False
+        
+        if session_id:
+            # Use existing session
+            try:
+                from activities.models import GameSession
+                session = GameSession.objects.get(id=session_id)
+                # Verify the session belongs to this child
+                if session.child.id != child.id:
+                    return Response(
+                        {"error": "Session does not belong to this child"}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                difficulty_level = session.difficulty_level
+            except (ImportError, GameSession.DoesNotExist):
+                return Response(
+                    {"error": "Session not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        elif difficulty is not None:
+            # Use provided difficulty
+            difficulty_level = difficulty
+            
+            # Validate difficulty
+            if difficulty_level not in [1, 2, 3]:
+                return Response(
+                    {"error": "Invalid difficulty level. Must be 1, 2, or 3."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            # Use difficulty from progress
+            try:
+                from activities.models import GameType, GameProgress
+                game_type = GameType.objects.get(code="MATCHSORT")
+                progress, created = GameProgress.objects.get_or_create(
+                    child=child, 
+                    game_type=game_type,
+                    defaults={'current_difficulty': 1}
+                )
+                difficulty_level = progress.current_difficulty
+            except (ImportError, GameType.DoesNotExist):
+                # Fallback to default difficulty
+                pass
+        
+        # If no session was provided, create a new one automatically
+        if not session_id:
+            try:
+                from activities.models import GameType, GameSession
+                game_type = GameType.objects.get(code="MATCHSORT")
+                
+                # Create a new session
+                session = GameSession.objects.create(
+                    child=child,
+                    game_type=game_type,
+                    difficulty_level=difficulty_level
+                )
+                session_id = session.id
+                created_session = True
+                logger.info(f"Automatically created new match and sort game session {session_id} for child {child_id}")
+            except ImportError:
+                logger.error("Could not import required models to create a session")
+            except Exception as e:
+                logger.error(f"Error creating session: {str(e)}")
         
         # Verify age group
         age_group = _validate_age_for_match_and_sort(child.age)
@@ -460,13 +700,20 @@ def match_and_sort_game(request, child_id, difficulty=1):
         # Get game data based on age group and difficulty
         if age_group == "3-5":
             # For age group 3-5, color matching with general buckets
-            game_data = _get_match_and_sort_game_data_3_5(request, age_group, difficulty)
+            game_data = _get_match_and_sort_game_data_3_5(request, age_group, difficulty_level)
         elif age_group == "6-8":
             # For age group 6-8, matching by shape, all from general_buckets
-            game_data = _get_match_and_sort_game_data_6_8(request, age_group, difficulty)
+            game_data = _get_match_and_sort_game_data_6_8(request, age_group, difficulty_level)
         else:  # age_group == "9-12"
             # For age group 9-12, matching by both shape AND color
-            game_data = _get_match_and_sort_game_data_9_12(request, age_group, difficulty)
+            game_data = _get_match_and_sort_game_data_9_12(request, age_group, difficulty_level)
+        
+        # Add session_id to the response
+        game_data['session_id'] = session_id
+        
+        # Add info whether session was created
+        if created_session:
+            game_data['session_created'] = True
         
         # Return the serialized game data
         serializer = MatchAndSortGameSerializer(game_data)
@@ -1024,5 +1271,328 @@ def serve_game_asset(request, game_type, asset_type, shape_type, filename):
         logger.error(f"Error serving game asset {file_path}: {str(e)}")
         return Response(
             {"error": "Error serving asset"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def check_daily_session(request, child_id):
+    """
+    Check if a session exists for the child for the current day
+    
+    Parameters:
+        child_id: ID of the child
+        
+    Query Parameters:
+        date: Optional date to check (format YYYY-MM-DD, defaults to today)
+        
+    Returns:
+        Response: JSON with session data if exists, or empty object if not
+    """
+    try:
+        # Get the child
+        child = Child.objects.get(id=child_id, user=request.user)
+        
+        # Get date from query params (default to today)
+        date_param = request.query_params.get('date', None)
+        
+        if date_param:
+            try:
+                from django.utils.dateparse import parse_date
+                check_date = parse_date(date_param)
+                if not check_date:
+                    check_date = timezone.now().date()
+            except Exception:
+                check_date = timezone.now().date()
+        else:
+            check_date = timezone.now().date()
+        
+        # Check if a session exists for this date
+        try:
+            session = Session.objects.get(child=child, session_date=check_date)
+            serializer = SessionSerializer(session)
+            return Response(serializer.data)
+        except Session.DoesNotExist:
+            # No session exists for this date
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Child.DoesNotExist:
+        logger.warning(f"Child with ID {child_id} not found for user {request.user.id}")
+        return Response(
+            {"error": "Child not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error checking daily session: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def start_app_session(request, child_id):
+    """
+    Start a new app session for a child
+    
+    Only one active session per child is allowed. If an active session
+    already exists, an error is returned.
+    
+    Parameters:
+        child_id: ID of the child
+    
+    Returns:
+        Response: JSON with session data
+    """
+    try:
+        # Get the child
+        child = Child.objects.get(id=child_id, user=request.user)
+        
+        # Check if an active session already exists
+        existing_session = Session.get_active_session(child)
+        if existing_session:
+            return Response(
+                {"error": "An active session already exists for this child", 
+                 "session": SessionSerializer(existing_session).data}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create a new active session for today
+        session = Session.objects.create(
+            child=child,
+            active=True,
+            session_date=timezone.now().date()
+        )
+        
+        serializer = SessionSerializer(session)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+    except Child.DoesNotExist:
+        logger.warning(f"Child with ID {child_id} not found for user {request.user.id}")
+        return Response(
+            {"error": "Child not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error starting app session: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def check_active_session(request, child_id):
+    """
+    Check if there is an active session for a child
+    
+    Parameters:
+        child_id: ID of the child
+    
+    Returns:
+        Response: JSON with active session data or empty object
+    """
+    try:
+        # Get the child
+        child = Child.objects.get(id=child_id, user=request.user)
+        
+        # Check for active session
+        active_session = Session.get_active_session(child)
+        
+        if active_session:
+            serializer = SessionSerializer(active_session)
+            return Response(serializer.data)
+        else:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Child.DoesNotExist:
+        logger.warning(f"Child with ID {child_id} not found for user {request.user.id}")
+        return Response(
+            {"error": "Child not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error checking active session: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def end_app_session(request, session_id):
+    """
+    End an active app session
+    
+    Parameters:
+        session_id: ID of the session to end
+    
+    Request Body:
+        duration: Duration of the session in minutes (required)
+        limit_crossed: Boolean indicating if usage limit was crossed (optional)
+    
+    Returns:
+        Response: JSON with updated session data
+    """
+    try:
+        # Get the session
+        session = Session.objects.get(id=session_id)
+        
+        # Verify the session belongs to a child of the requesting user
+        if not Child.objects.filter(id=session.child.id, user=request.user).exists():
+            return Response(
+                {"error": "You do not have permission to update this session"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Verify session is active
+        if not session.active:
+            return Response(
+                {"error": "This session is already ended"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get required duration from request
+        duration = request.data.get('duration')
+        if duration is None:
+            return Response(
+                {"error": "Duration is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Update limit_crossed if provided
+        limit_crossed = request.data.get('limit_crossed', False)
+        
+        # Update session data
+        session.duration = duration
+        session.limit_crossed = limit_crossed
+        
+        # End the session
+        session.end_session()
+        
+        serializer = SessionSerializer(session)
+        return Response(serializer.data)
+        
+    except Session.DoesNotExist:
+        logger.warning(f"Session with ID {session_id} not found")
+        return Response(
+            {"error": "Session not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error ending app session: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_child_app_sessions(request, child_id):
+    """
+    Get app usage sessions for a child
+    
+    Parameters:
+        child_id: ID of the child
+    
+    Query Parameters:
+        limit: Optional limit on number of sessions to return
+        start_date: Optional start date for filtering (YYYY-MM-DD)
+        end_date: Optional end date for filtering (YYYY-MM-DD)
+        with_game_details: Include detailed game session info (default: false)
+        include_active: Include active sessions (default: true)
+    
+    Returns:
+        Response: JSON with list of session data
+    """
+    try:
+        # Get the child
+        child = Child.objects.get(id=child_id, user=request.user)
+        
+        # Get limit from query params (default to 30)
+        limit = request.query_params.get('limit', 30)
+        try:
+            limit = int(limit)
+        except (TypeError, ValueError):
+            limit = 30
+        
+        # Filter sessions for this child
+        sessions = Session.objects.filter(child=child)
+        
+        # Filter active/inactive sessions
+        include_active = request.query_params.get('include_active', 'true').lower() == 'true'
+        if not include_active:
+            sessions = sessions.filter(active=False)
+        
+        # Apply date filters if provided
+        start_date = request.query_params.get('start_date', None)
+        end_date = request.query_params.get('end_date', None)
+        
+        if start_date:
+            try:
+                from django.utils.dateparse import parse_date
+                parsed_date = parse_date(start_date)
+                if parsed_date:
+                    sessions = sessions.filter(session_date__gte=parsed_date)
+            except Exception:
+                pass
+                
+        if end_date:
+            try:
+                from django.utils.dateparse import parse_date
+                parsed_date = parse_date(end_date)
+                if parsed_date:
+                    sessions = sessions.filter(session_date__lte=parsed_date)
+            except Exception:
+                pass
+        
+        # Order by date (newest first)
+        sessions = sessions.order_by('-session_date', '-start_time')[:limit]
+        
+        # Check if detailed game sessions are requested
+        with_game_details = request.query_params.get('with_game_details', 'false').lower() == 'true'
+        
+        # Enhance response with game session details if requested
+        if with_game_details:
+            from activities.models import GameSession
+            from activities.serializers import GameSessionSerializer
+            
+            enhanced_data = []
+            
+            for session in sessions:
+                session_data = SessionSerializer(session).data
+                
+                # Add detailed game session data if any exist
+                if session.game_sessions:
+                    try:
+                        game_session_ids = session.game_sessions
+                        game_sessions = GameSession.objects.filter(id__in=game_session_ids)
+                        session_data['detailed_game_sessions'] = GameSessionSerializer(game_sessions, many=True).data
+                    except Exception as e:
+                        logger.error(f"Error fetching game session details: {str(e)}")
+                        session_data['detailed_game_sessions'] = []
+                        
+                enhanced_data.append(session_data)
+                
+            return Response(enhanced_data)
+        else:
+            serializer = SessionSerializer(sessions, many=True)
+            return Response(serializer.data)
+        
+    except Child.DoesNotExist:
+        logger.warning(f"Child with ID {child_id} not found for user {request.user.id}")
+        return Response(
+            {"error": "Child not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving app sessions: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
