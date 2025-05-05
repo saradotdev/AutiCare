@@ -54,7 +54,7 @@ const keys = [
 ];
 
 export default function Home() {
-  useSessionTracker(); // Start tracking session time for child
+  const { stopTimer } = useSessionTracker(); // start session tracking
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
@@ -86,7 +86,8 @@ export default function Home() {
       setTimeout(() => {
         setModalVisible(false);
         setPinInput("");
-        navigation.navigate("Guardian" as never);
+        stopTimer(); // stop session tracking before navigating to Guardian
+        navigation.reset({ index: 0, routes: [{ name: "Guardian" }] });
       }, 300);
     }
   }, [pinInput]);
@@ -160,6 +161,7 @@ export default function Home() {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <TouchableOpacity
+              hitSlop={20}
               style={styles.modalCloseButton}
               onPress={() => setModalVisible(false)}
             >

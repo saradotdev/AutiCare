@@ -29,7 +29,9 @@ export default function ForgotPassword() {
         <MyButton
           size={15}
           textColor={theme.colorSummerSky}
-          onPress={() => navigation.replace("SignIn")}
+          onPress={() =>
+            navigation.reset({ index: 0, routes: [{ name: "SignIn" }] })
+          }
         >
           Login
         </MyButton>

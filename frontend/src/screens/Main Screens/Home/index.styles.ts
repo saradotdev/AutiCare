@@ -36,6 +36,7 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colorLightCrimson,
     borderRadius: 50,
     padding: 10,
+    zIndex: 999,
   },
   modalTitle: {
     fontSize: 35,

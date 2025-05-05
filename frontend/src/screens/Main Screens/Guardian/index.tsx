@@ -1,8 +1,9 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Summary, Settings } from "../../../screens";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import theme from "../../../../theme";
+import Summary from "../Summary";
+import Settings from "../Settings";
 
 const Tab = createBottomTabNavigator();
 
