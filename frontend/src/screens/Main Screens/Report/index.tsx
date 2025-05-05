@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Dimensions, FlatList, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { MyButton, MyText } from "../../../components";
 import { useTimeLimit } from "../../../context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -14,11 +14,15 @@ const DURATION_STATS = [
     id: "1",
     title: "Session Duration",
     value: "10",
+    cardBg: theme.colorLightOrange,
+    textBg: theme.colorDarkOrange,
   },
   {
     id: "2",
     title: "Usage Limit",
     value: "10",
+    cardBg: theme.colorSummerSky,
+    textBg: theme.colorDarkSummerSky,
   },
 ];
 
@@ -28,25 +32,38 @@ const GAME_STATS = [
     title: "Guess the Expression",
     difficulty: "2",
     score: "93",
+    cardBg: theme.colorBlue,
+    textBg: theme.colorDarkBlue,
   },
   {
     id: "2",
     title: "Match and Sort",
     difficulty: "1",
     score: "85",
+    cardBg: theme.colorCoralRed,
+    textBg: theme.colorDarkCoralRed,
   },
   {
     id: "3",
     title: "Social Scenario",
     difficulty: "3",
     score: "78",
+    cardBg: theme.colorLime,
+    textBg: theme.colorDarkLime,
+  },
+  {
+    id: "4",
+    title: "Word Speech",
+    difficulty: "2",
+    score: "90",
+    cardBg: theme.colorCyan,
+    textBg: theme.colorDarkCyan,
   },
 ];
 
 export default function Report() {
-  const [isTimeExceeded, setIsTimeExceeded] = useState<boolean>(false);
-  const { checkIfTimeExceeded } = useTimeLimit(); // using the context to get the time limit status
-
+  const [isTimeExceeded, setIsTimeExceeded] = useState(false);
+  const { checkIfTimeExceeded } = useTimeLimit();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useFocusEffect(
@@ -61,7 +78,7 @@ export default function Report() {
   );
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {/* Header */}
       <View style={styles.header}>
         <MyText style={styles.title}>Report</MyText>
@@ -90,40 +107,72 @@ export default function Report() {
           </MyButton>
         )}
       </View>
-
-      <View style={styles.container}>
-        <View style={styles.durationStatsContainer}>
-          {DURATION_STATS.map((item) => (
-            <View key={item.id} style={[styles.durationCard]}>
-              <MyText style={styles.durationTitle}>{item.title}</MyText>
-              <View style={styles.durationValueContainer}>
-                <MyText style={styles.durationValue}>
-                  {item.value} Minutes
-                </MyText>
-              </View>
+      <FlatList
+        data={GAME_STATS}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+        ListHeaderComponent={
+          <>
+            {/* Duration Stats */}
+            <View style={styles.durationStatsContainer}>
+              {DURATION_STATS.map((item) => (
+                <View
+                  key={item.id}
+                  style={[
+                    styles.durationCard,
+                    { backgroundColor: item.cardBg },
+                  ]}
+                >
+                  <MyText style={styles.text}>{item.title}</MyText>
+                  <MyText
+                    style={[
+                      styles.textBackground,
+                      { backgroundColor: item.textBg },
+                    ]}
+                  >
+                    {item.value} Minutes
+                  </MyText>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-
-        <FlatList
-          data={GAME_STATS}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.gameStatsCard}>
-              <MyText style={styles.gameTitle}>{item.title}</MyText>
-              <View>
-                <MyText>Difficulty Level</MyText>
-                <MyText>Level {item.difficulty}</MyText>
-              </View>
-              <View>
-                <MyText>Overall Score</MyText>
-                <MyText>{item.score}%</MyText>
-              </View>
+          </>
+        }
+        renderItem={({ item }) => (
+          /* Game Stats */
+          <View
+            style={[styles.gameStatsCard, { backgroundColor: item.cardBg }]}
+          >
+            <MyText
+              style={[styles.textBackground, { backgroundColor: item.textBg }]}
+            >
+              {item.title}
+            </MyText>
+            <View style={styles.row}>
+              <MyText style={styles.subText}>Difficulty Level</MyText>
+              <MyText
+                style={[
+                  styles.subTextBackground,
+                  { backgroundColor: item.textBg },
+                ]}
+              >
+                Level {item.difficulty}
+              </MyText>
             </View>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+            <View style={styles.row}>
+              <MyText style={styles.subText}>Overall Score</MyText>
+              <MyText
+                style={[
+                  styles.subTextBackground,
+                  { backgroundColor: item.textBg },
+                ]}
+              >
+                {item.score}%
+              </MyText>
+            </View>
+          </View>
+        )}
+      />
     </View>
   );
 }

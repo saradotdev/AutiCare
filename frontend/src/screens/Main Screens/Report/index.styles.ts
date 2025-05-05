@@ -31,7 +31,6 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   durationCard: {
-    backgroundColor: theme.colorSummerSky,
     width: "48%",
     height: 120,
     borderRadius: 20,
@@ -39,16 +38,39 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 10,
   },
-  durationTitle: {
+  text: {
     color: theme.colorWhite,
     fontSize: 20,
   },
-  durationValue: {
+  textBackground: {
     fontSize: 20,
     color: theme.colorWhite,
-    backgroundColor: theme.colorBlue,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
+  },
+  gameStatsCard: {
+    marginTop: 16,
+    borderRadius: 20,
+    height: 150,
+    justifyContent: "space-between",
+    padding: 10,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  subText: {
+    color: theme.colorWhite,
+    fontSize: 18,
+  },
+  subTextBackground: {
+    fontSize: 18,
+    color: theme.colorWhite,
+    borderRadius: 10,
+    paddingVertical: 5,
+    width: 80,
+    textAlign: "center",
   },
 });
