@@ -1,4 +1,4 @@
-import { RootStackParamList } from "./navigation";
+import { RootStackParamList } from "./navigation.types";
 
 export interface GameCardProps {
   title: string;
@@ -45,4 +45,11 @@ export interface FallingObject {
   color: string;
   target_bucket_id: string;
   image_url: string;
+}
+
+export interface LevelButtonProps {
+  level: number;
+  onPress: () => void;
+  isLocked?: boolean;
+  style: any;
 }

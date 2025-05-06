@@ -19,33 +19,56 @@ export const TimeLimitProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isTimeExceeded, setIsTimeExceeded] = useState(false);
 
-  const checkTimeLimit = async () => {
-    const practiceTime = parseInt(
-      (await AsyncStorage.getItem("timeOfPractice")) || "0",
-    );
-    const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
-    const timeSpent =
-      parseInt((await AsyncStorage.getItem(todayKey)) || "0") / 60;
+  const getSessionKeyForChild = async (): Promise<string> => {
+    const token = await AsyncStorage.getItem("jwtToken");
+    const childId = await AsyncStorage.getItem(`childId-${token}`);
+    const dateStr = format(new Date(), "yyyy-MM-dd");
+    return `sessionTime-${childId}-${dateStr}`;
+  };
 
-    const exceeded = timeSpent >= practiceTime && practiceTime > 0;
+  const getPracticeKeyForChild = async (): Promise<string> => {
+    const token = await AsyncStorage.getItem("jwtToken");
+    const childId = await AsyncStorage.getItem(`childId-${token}`);
+    return `timeOfPractice-${childId}`;
+  };
+
+  const checkTimeLimit = async (): Promise<boolean> => {
+    const sessionKey = await getSessionKeyForChild();
+    const practiceKey = await getPracticeKeyForChild();
+
+    const timeSpentSeconds = parseInt(
+      (await AsyncStorage.getItem(sessionKey)) || "0",
+    );
+    const practiceLimitMinutes = parseInt(
+      (await AsyncStorage.getItem(practiceKey)) || "0",
+    );
+
+    const timeSpentMinutes = timeSpentSeconds / 60;
+    const exceeded =
+      timeSpentMinutes >= practiceLimitMinutes && practiceLimitMinutes > 0;
+
     setIsTimeExceeded(exceeded);
     return exceeded;
   };
 
-  const checkIfTimeExceeded = async () => {
-    const practiceTime = parseInt(
-      (await AsyncStorage.getItem("timeOfPractice")) || "0",
-    );
-    const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
-    const timeSpent =
-      parseInt((await AsyncStorage.getItem(todayKey)) || "0") / 60;
+  const checkIfTimeExceeded = async (): Promise<boolean> => {
+    const sessionKey = await getSessionKeyForChild();
+    const practiceKey = await getPracticeKeyForChild();
 
-    return timeSpent >= practiceTime && practiceTime > 0;
+    const timeSpentSeconds = parseInt(
+      (await AsyncStorage.getItem(sessionKey)) || "0",
+    );
+    const practiceLimitMinutes = parseInt(
+      (await AsyncStorage.getItem(practiceKey)) || "0",
+    );
+
+    const timeSpentMinutes = timeSpentSeconds / 60;
+    return timeSpentMinutes >= practiceLimitMinutes && practiceLimitMinutes > 0;
   };
 
   useEffect(() => {
-    checkTimeLimit();
-    const interval = setInterval(checkTimeLimit, 30000);
+    checkTimeLimit(); // initial check
+    const interval = setInterval(checkTimeLimit, 30000); // update every 30 seconds
     return () => clearInterval(interval);
   }, []);
 

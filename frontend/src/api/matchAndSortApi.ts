@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const fetchMatchAndSortGameAssets = async () => {
   try {
     const token = await AsyncStorage.getItem("jwtToken");
-    const childId = await AsyncStorage.getItem("childId"); // Retrieve stored child ID
+    const childId = await AsyncStorage.getItem(`childId-${token}`); // Retrieve stored child ID
 
     if (!childId) throw new Error("Child ID not found");
 
