@@ -6,22 +6,26 @@ import { format } from "date-fns";
 export default function useSessionTracker() {
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const intervalRef = useRef<any>(null);
-  const sessionStart = useRef<number | null>(null);
 
   const saveSessionTime = async (duration: number) => {
-    const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
+    const token = await AsyncStorage.getItem("jwtToken");
+    const childId = await AsyncStorage.getItem(`childId-${token}`);
+    if (!childId) return;
+
+    const todayKey = `sessionTime-${childId}-${format(new Date(), "yyyy-MM-dd")}`;
     const existing = await AsyncStorage.getItem(todayKey);
     const updated = (existing ? parseInt(existing) : 0) + duration;
     await AsyncStorage.setItem(todayKey, updated.toString());
-    console.log(`🕒 Saved ${duration}s -> total now ${updated}s`);
+    console.log(`🕒 [${childId}] Saved ${duration}s -> total now ${updated}s`);
   };
 
   const startTimer = () => {
     if (intervalRef.current) return;
+
     intervalRef.current = setInterval(() => {
       saveSessionTime(10); // save 10 seconds every time
     }, 10000);
-    sessionStart.current = Date.now();
+
     console.log("▶️ Timer started");
   };
 
@@ -61,5 +65,5 @@ export default function useSessionTracker() {
     };
   }, []);
 
-  return { stopTimer }; // return stopTimer to allow manual stopping of the timer if needed
+  return { stopTimer };
 }

@@ -18,7 +18,7 @@ import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Game } from "../../../types";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useSessionTracker } from "../../../hooks";
+import { useBackgroundMusic, useSessionTracker } from "../../../hooks";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
@@ -69,10 +69,13 @@ export default function Home() {
   const [modalVisible, setModalVisible] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const { playMusic } = useBackgroundMusic();
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
+    playMusic();
+
     const getData = async () => {
       try {
         const response = await fetchData();

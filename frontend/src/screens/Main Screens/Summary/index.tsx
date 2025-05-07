@@ -30,8 +30,14 @@ export default function Summary() {
         const timeExceeded = await checkIfTimeExceeded();
         setIsTimeExceeded(timeExceeded);
 
-        const storedPracticeTime = await AsyncStorage.getItem("timeOfPractice");
-        const todayKey = `sessionTime-${format(new Date(), "yyyy-MM-dd")}`;
+        const token = await AsyncStorage.getItem("jwtToken");
+        const childId = await AsyncStorage.getItem(`childId-${token}`);
+        if (!childId) return;
+
+        const todayKey = `sessionTime-${childId}-${format(new Date(), "yyyy-MM-dd")}`;
+        const practiceKey = `timeOfPractice-${childId}`;
+
+        const storedPracticeTime = await AsyncStorage.getItem(practiceKey);
         const storedTimeSpent = await AsyncStorage.getItem(todayKey);
 
         const parsedPracticeTime = storedPracticeTime
