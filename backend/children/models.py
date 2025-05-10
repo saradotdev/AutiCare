@@ -2,6 +2,9 @@ from django.db import models
 from users.models import User
 from django.utils import timezone
 import pytz
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Child(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -125,33 +128,60 @@ class Session(models.Model):
         pk_timezone = pytz.timezone('Asia/Karachi')
         today_pk = timezone.now().astimezone(pk_timezone).date()
         
-        # Check for existing active session
-        active_session = cls.get_active_session(child)
-        
-        # If no active session, create a new one for today
-        if not active_session:
-            new_session = cls.objects.create(
-                child=child,
-                active=True,
-                session_date=today_pk
-            )
-            return new_session, False
-        
-        # Check if active session is from a different day
-        session_date_pk = active_session.session_date
-        
-        # If the session date is not today in Pakistan time, end it and create a new one
-        if session_date_pk != today_pk:
-            # End the previous session
-            active_session.end_session()
+        try:
+            # Check for existing active session
+            active_session = cls.get_active_session(child)
             
-            # Create a new session for today
-            new_session = cls.objects.create(
-                child=child,
-                active=True,
-                session_date=today_pk
-            )
-            return new_session, True
-        
-        # Session is current, no need for reset
-        return active_session, False
+            # If no active session, create a new one for today
+            if not active_session:
+                # Make sure there are no active sessions first (prevent constraint violation)
+                cls.objects.filter(child=child, active=True).update(active=False)
+                
+                new_session = cls.objects.create(
+                    child=child,
+                    active=True,
+                    session_date=today_pk
+                )
+                return new_session, False
+            
+            # Check if active session is from a different day
+            session_date_pk = active_session.session_date
+            
+            # If the session date is not today in Pakistan time, end it and create a new one
+            if session_date_pk != today_pk:
+                # End the previous session
+                active_session.end_session()
+                
+                # Make sure there are no other active sessions (prevent constraint violation)
+                cls.objects.filter(child=child, active=True).update(active=False)
+                
+                # Create a new session for today
+                new_session = cls.objects.create(
+                    child=child,
+                    active=True,
+                    session_date=today_pk
+                )
+                return new_session, True
+            
+            # Session is current, no need for reset
+            return active_session, False
+            
+        except Exception as e:
+            logger.error(f"Error in check_and_reset_session for child {child.id}: {str(e)}")
+            
+            # Emergency cleanup - make sure there's only one active session
+            try:
+                # Deactivate all sessions
+                cls.objects.filter(child=child, active=True).update(active=False)
+                
+                # Create a fresh session
+                new_session = cls.objects.create(
+                    child=child,
+                    active=True,
+                    session_date=today_pk
+                )
+                return new_session, True
+                
+            except Exception as e2:
+                logger.error(f"Emergency session cleanup failed for child {child.id}: {str(e2)}")
+                raise
