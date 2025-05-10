@@ -1,0 +1,46 @@
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Summary, Settings } from "../../../screens";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import theme from "../../../../theme";
+
+const Tab = createBottomTabNavigator();
+
+export default function Guardian() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: theme.colorSummerSky,
+        tabBarInactiveTintColor: theme.colorDarkGrey,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontFamily: theme.ibrand,
+        },
+        tabBarStyle: {
+          backgroundColor: "#fff",
+          height: 60,
+        },
+      }}
+    >
+      <Tab.Screen
+        name="Summary"
+        component={Summary}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="stats-chart" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={Settings}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={26} color={color} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
