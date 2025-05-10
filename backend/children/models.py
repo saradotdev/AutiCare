@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 from django.utils import timezone
+import pytz
 
 class Child(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -97,6 +98,60 @@ class Session(models.Model):
     def get_active_session(cls, child):
         """Get the active session for a child if it exists"""
         try:
-            return cls.objects.get(child=child, active=True, session_date=timezone.now().date())
+            # Use Pakistani timezone for date comparison
+            pk_timezone = pytz.timezone('Asia/Karachi')
+            today_pk = timezone.now().astimezone(pk_timezone).date()
+            
+            return cls.objects.get(child=child, active=True, session_date=today_pk)
         except cls.DoesNotExist:
             return None
+    
+    @classmethod
+    def check_and_reset_session(cls, child):
+        """
+        Check if the child has an active session from a previous day and reset it if necessary
+        Creates a new session for today if needed
+        Uses Pakistani timezone (Asia/Karachi) for date comparison
+        
+        Args:
+            child: Child model instance
+            
+        Returns:
+            tuple: (active_session, was_reset)
+                active_session: The current active session
+                was_reset: Boolean indicating if a reset occurred
+        """
+        # Get Pakistan timezone
+        pk_timezone = pytz.timezone('Asia/Karachi')
+        today_pk = timezone.now().astimezone(pk_timezone).date()
+        
+        # Check for existing active session
+        active_session = cls.get_active_session(child)
+        
+        # If no active session, create a new one for today
+        if not active_session:
+            new_session = cls.objects.create(
+                child=child,
+                active=True,
+                session_date=today_pk
+            )
+            return new_session, False
+        
+        # Check if active session is from a different day
+        session_date_pk = active_session.session_date
+        
+        # If the session date is not today in Pakistan time, end it and create a new one
+        if session_date_pk != today_pk:
+            # End the previous session
+            active_session.end_session()
+            
+            # Create a new session for today
+            new_session = cls.objects.create(
+                child=child,
+                active=True,
+                session_date=today_pk
+            )
+            return new_session, True
+        
+        # Session is current, no need for reset
+        return active_session, False

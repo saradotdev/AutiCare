@@ -7,7 +7,7 @@ from children.views import (
     facial_expressions_for_child, serve_facial_expression,
     match_and_sort_game, serve_game_asset,
     start_app_session, end_app_session, get_child_app_sessions,
-    check_active_session
+    check_active_session, update_app_session_duration
 )
 from activities.views import (
     social_scenario_game, social_scenario_batch,
@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/children/<int:child_id>/app-usage/start/', start_app_session, name='start_app_session'),
     path('api/children/<int:child_id>/app-usage/check/', check_active_session, name='check_active_session'),
     path('api/app-usage/<int:session_id>/end/', end_app_session, name='end_app_session'),
+    path('api/app-usage/<int:session_id>/update-duration/', update_app_session_duration, name='update_app_session_duration'),
     path('api/children/<int:child_id>/app-usage/', get_child_app_sessions, name='get_child_app_sessions'),
 
     # Facial Expressions Game endpoints
