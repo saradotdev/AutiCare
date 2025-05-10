@@ -16,6 +16,8 @@ class SessionAutoResetMiddleware(MiddlewareMixin):
         self.get_response = get_response
         # Compile regex pattern for API paths we want to check
         self.api_pattern = re.compile(r'^/api/')
+        # Add async_mode attribute required by Django 5.1.5
+        self.async_mode = False
         
     def process_request(self, request):
         """Process the request before it reaches the view"""
