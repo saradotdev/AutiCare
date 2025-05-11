@@ -6,8 +6,6 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../types";
 import { useNavigation } from "@react-navigation/native";
 import { loginUser } from "../../../api/authApi";
-import { startAppSession } from "../../../api/appSessionApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignIn() {
   const [email, setEmail] = useState<string>("");
@@ -23,8 +21,6 @@ export default function SignIn() {
       const response = await loginUser(email, password);
       console.log(response);
       setIsLoggedIn(true);
-
-      await startAppSession();
 
       navigation.reset({
         index: 0,

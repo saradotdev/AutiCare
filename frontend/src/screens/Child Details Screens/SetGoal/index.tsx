@@ -6,7 +6,6 @@ import { RootStackParamList } from "../../../types";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { createChild } from "../../../api/childrenApi";
-import { startAppSession } from "../../../api/appSessionApi";
 
 export default function SetGoal() {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -23,7 +22,6 @@ export default function SetGoal() {
     const selectedTime = Number(timeOfPractice);
     try {
       await createChild(age, gender, speechLevel, selectedTime);
-      await startAppSession();
       navigation.reset({ index: 0, routes: [{ name: "Home" }] });
     } catch (error) {
       console.error("Failed to create child profile:", error);

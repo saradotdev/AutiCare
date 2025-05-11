@@ -1552,7 +1552,7 @@ def get_child_app_sessions(request, child_id):
                 pass
         
         # Order by date (newest first)
-        sessions = sessions.order_by('-session_date', '-start_time')[:limit]
+        sessions = sessions.order_by('-session_date')[:limit]
         
         # Check if detailed game sessions are requested
         with_game_details = request.query_params.get('with_game_details', 'false').lower() == 'true'

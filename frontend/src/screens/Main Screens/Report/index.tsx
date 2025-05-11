@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { MyButton, MyText } from "../../../components";
 import { useTimeLimit } from "../../../context";
@@ -8,61 +8,44 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { FontAwesome } from "@expo/vector-icons";
 import theme from "../../../../theme";
 import { styles } from "./index.styles";
+import { fetchGameProgressData } from "../../../api/gameProgressApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { format } from "date-fns";
 
-const DURATION_STATS = [
+// Map game codes to display properties
+const GAME_DEFINITIONS = [
   {
-    id: "1",
-    title: "Session Duration",
-    value: "10",
-    cardBg: theme.colorLightOrange,
-    textBg: theme.colorDarkOrange,
-  },
-  {
-    id: "2",
-    title: "Usage Limit",
-    value: "10",
-    cardBg: theme.colorSummerSky,
-    textBg: theme.colorDarkSummerSky,
-  },
-];
-
-const GAME_STATS = [
-  {
-    id: "1",
+    gameCode: "FACIAL",
     title: "Guess the Expression",
-    difficulty: "2",
-    score: "93",
     cardBg: theme.colorBlue,
     textBg: theme.colorDarkBlue,
   },
   {
-    id: "2",
+    gameCode: "MATCHSORT",
     title: "Match and Sort",
-    difficulty: "1",
-    score: "85",
     cardBg: theme.colorCoralRed,
     textBg: theme.colorDarkCoralRed,
   },
   {
-    id: "3",
+    gameCode: "SOCIAL",
     title: "Social Scenario",
-    difficulty: "3",
-    score: "78",
     cardBg: theme.colorLime,
     textBg: theme.colorDarkLime,
   },
-  {
-    id: "4",
-    title: "Word Speech",
-    difficulty: "2",
-    score: "90",
-    cardBg: theme.colorCyan,
-    textBg: theme.colorDarkCyan,
-  },
+  // {
+  //   gameCode: "WORD",
+  //   title: "Word Speech",
+  //   cardBg: theme.colorCyan,
+  //   textBg: theme.colorDarkCyan,
+  // },
 ];
 
 export default function Report() {
   const [isTimeExceeded, setIsTimeExceeded] = useState(false);
+  const [gameStats, setGameStats] = useState<any[]>([]);
+  const [timeSpent, setTimeSpent] = useState<number>(0);
+  const [practiceTime, setPracticeTime] = useState<number>(0);
+
   const { checkIfTimeExceeded } = useTimeLimit();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
@@ -71,11 +54,69 @@ export default function Report() {
       const loadData = async () => {
         const timeExceeded = await checkIfTimeExceeded();
         setIsTimeExceeded(timeExceeded);
-      };
 
+        const token = await AsyncStorage.getItem("jwtToken");
+        const childId = await AsyncStorage.getItem(`childId-${token}`);
+        if (!childId) return;
+
+        const todayKey = `sessionTime-${childId}-${format(new Date(), "yyyy-MM-dd")}`;
+        const practiceKey = `timeOfPractice-${childId}`;
+
+        const storedPracticeTime = await AsyncStorage.getItem(practiceKey);
+        const storedTimeSpent = await AsyncStorage.getItem(todayKey);
+
+        const parsedPracticeTime = storedPracticeTime
+          ? parseInt(storedPracticeTime)
+          : 0;
+        const parsedTimeSpent = storedTimeSpent ? parseInt(storedTimeSpent) : 0;
+
+        const timeSpentInMinutes = Math.floor(parsedTimeSpent / 60);
+
+        setPracticeTime(parsedPracticeTime);
+        setTimeSpent(timeSpentInMinutes);
+      };
       loadData();
     }, [checkIfTimeExceeded]),
   );
+
+  useEffect(() => {
+    const loadProgressData = async () => {
+      try {
+        const allStats = await Promise.all(
+          GAME_DEFINITIONS.map(async (game) => {
+            const data = await fetchGameProgressData(game.gameCode);
+            return {
+              ...game,
+              difficulty: data?.current_difficulty ?? "N/A",
+              score: data?.score_percentage?.toFixed(0) ?? "N/A",
+            };
+          }),
+        );
+        setGameStats(allStats);
+      } catch (err) {
+        console.error("Error loading progress data", err);
+      }
+    };
+
+    loadProgressData();
+  }, []);
+
+  const dynamicDurationStats = [
+    {
+      id: "1",
+      title: "Session Duration",
+      value: timeSpent.toString(),
+      cardBg: theme.colorLightOrange,
+      textBg: theme.colorDarkOrange,
+    },
+    {
+      id: "2",
+      title: "Usage Limit",
+      value: practiceTime.toString(),
+      cardBg: theme.colorSummerSky,
+      textBg: theme.colorDarkSummerSky,
+    },
+  ];
 
   return (
     <View style={{ flex: 1 }}>
@@ -83,7 +124,6 @@ export default function Report() {
       <View style={styles.header}>
         <MyText style={styles.title}>Report</MyText>
 
-        {/* Lock the button when time is exceeded */}
         {isTimeExceeded ? (
           <MyButton
             textColor={theme.colorWhite}
@@ -107,39 +147,33 @@ export default function Report() {
           </MyButton>
         )}
       </View>
+
       <FlatList
-        data={GAME_STATS}
-        keyExtractor={(item) => item.id}
+        data={gameStats}
+        keyExtractor={(item) => item.gameCode}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         ListHeaderComponent={
-          <>
-            {/* Duration Stats */}
-            <View style={styles.durationStatsContainer}>
-              {DURATION_STATS.map((item) => (
-                <View
-                  key={item.id}
+          <View style={styles.durationStatsContainer}>
+            {dynamicDurationStats.map((item) => (
+              <View
+                key={item.id}
+                style={[styles.durationCard, { backgroundColor: item.cardBg }]}
+              >
+                <MyText style={styles.text}>{item.title}</MyText>
+                <MyText
                   style={[
-                    styles.durationCard,
-                    { backgroundColor: item.cardBg },
+                    styles.textBackground,
+                    { backgroundColor: item.textBg },
                   ]}
                 >
-                  <MyText style={styles.text}>{item.title}</MyText>
-                  <MyText
-                    style={[
-                      styles.textBackground,
-                      { backgroundColor: item.textBg },
-                    ]}
-                  >
-                    {item.value} Minutes
-                  </MyText>
-                </View>
-              ))}
-            </View>
-          </>
+                  {item.value} Minutes
+                </MyText>
+              </View>
+            ))}
+          </View>
         }
         renderItem={({ item }) => (
-          /* Game Stats */
           <View
             style={[styles.gameStatsCard, { backgroundColor: item.cardBg }]}
           >

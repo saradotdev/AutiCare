@@ -706,11 +706,21 @@ def end_game_session(request, session_id):
         # Get or create the daily app session for this child
         from children.models import Session as AppSession
         today = timezone.now().date()
-        app_session, created = AppSession.objects.get_or_create(
-            child=session.child,
-            session_date=today,
-            defaults={'duration': 0, 'limit_crossed': False}
-        )
+        app_sessions = AppSession.objects.filter(child=session.child, session_date=today)
+
+        if app_sessions.exists():
+            # Just pick the last one to update instead of erroring out
+            app_session = app_sessions.last()
+            created = False
+        else:
+            # Safe to create
+            app_session = AppSession.objects.create(
+                child=session.child,
+                session_date=today,
+                duration=0,
+                limit_crossed=False
+            )
+            created = True
         
         # Associate this game session with the app session
         app_session.add_game_session(session_id)
