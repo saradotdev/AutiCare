@@ -21,12 +21,13 @@ SOCIAL_SCENARIOS = {
                 'title': 'Sharing Toys',
                 'dialogues': [
                     {'character': 'character1', 'text': 'Can I play with your toy?'},
-                    {'character': 'character2', 'text': 'What should you do?'},
+                    {'character': 'character2', 'text': 'Let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': 'Share your toy and say "Yes, we can play together"', 'is_correct': True},
-                    {'id': 2, 'text': 'Say "No" and walk away', 'is_correct': False},
-                    {'id': 3, 'text': 'Ignore them', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Yes, let\'s play together"', 'is_correct': True},
+                    {'id': 2, 'text': 'Say "No" and leave', 'is_correct': False},
+                    {'id': 3, 'text': 'Say nothing', 'is_correct': False},
+                    {'id': 4, 'text': 'Look confused', 'is_correct': False},
                 ],
                 'character1_name': 'Friend',
                 'character2_name': 'You',
@@ -35,12 +36,13 @@ SOCIAL_SCENARIOS = {
                 'title': 'Saying Hello',
                 'dialogues': [
                     {'character': 'character1', 'text': 'Hi there!'},
-                    {'character': 'character2', 'text': 'What should you say?'},
+                    {'character': 'character2', 'text': '...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': 'Say "Hello" back and smile', 'is_correct': True},
-                    {'id': 2, 'text': 'Don\'t say anything', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Hi" and smile', 'is_correct': True},
+                    {'id': 2, 'text': 'Stay quiet', 'is_correct': False},
                     {'id': 3, 'text': 'Run away', 'is_correct': False},
+                    {'id': 4, 'text': 'Make a silly face', 'is_correct': False},
                 ],
                 'character1_name': 'New Friend',
                 'character2_name': 'You',
@@ -50,146 +52,161 @@ SOCIAL_SCENARIOS = {
             {
                 'title': 'Taking Turns',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'I want to go down the slide now.'},
-                    {'character': 'character2', 'text': 'But I just got here. What should you do?'},
+                    {'character': 'character1', 'text': 'I want to use the slide now.'},
+                    {'character': 'character2', 'text': 'But I just got here.'},
+                    {'character': 'character1', 'text': 'I want a turn too.'},
+                    {'character': 'character2', 'text': 'Oh, let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': 'Say "Let\'s take turns. You can go after me"', 'is_correct': True},
-                    {'id': 2, 'text': 'Push them away and go down the slide', 'is_correct': False},
-                    {'id': 3, 'text': 'Cry until they let you go first', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Let\'s take turns"', 'is_correct': True},
+                    {'id': 2, 'text': 'Push them and go first', 'is_correct': False},
+                    {'id': 3, 'text': 'Cry loudly', 'is_correct': False},
+                    {'id': 4, 'text': 'Slide without asking', 'is_correct': False},
                 ],
                 'character1_name': 'Friend',
                 'character2_name': 'You',
-            },
+            }
         ],
         3: [
             {
                 'title': 'Asking for Help',
                 'dialogues': [
-                    {'character': 'character2', 'text': 'I can\'t reach my toy on the shelf.'},
-                    {'character': 'character1', 'text': 'What should you do?'},
+                    {'character': 'character1', 'text': 'What\'s wrong?'},
+                    {'character': 'character2', 'text': 'I can\'t reach my toy.'},
+                    {'character': 'character1', 'text': 'Oh, I see.'},
+                    {'character': 'character2', 'text': '...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': 'Ask for help: "Can you please help me reach my toy?"', 'is_correct': True},
-                    {'id': 2, 'text': 'Climb on the shelf to get it yourself', 'is_correct': False},
-                    {'id': 3, 'text': 'Cry until someone notices', 'is_correct': False},
+                    {'id': 1, 'text': 'Ask your friend for help', 'is_correct': True},
+                    {'id': 2, 'text': 'Climb the shelf', 'is_correct': False},
+                    {'id': 3, 'text': 'Cry for help', 'is_correct': False},
+                    {'id': 4, 'text': 'Walk away', 'is_correct': False},
                 ],
                 'character1_name': 'Parent',
                 'character2_name': 'You',
-            },
-        ],
+            }
+        ]
     },
     '6-8': {
         1: [
             {
                 'title': 'Making Friends',
                 'dialogues': [
-                    {'character': 'character2', 'text': 'I want to play with that group of kids.'},
-                    {'character': 'character1', 'text': 'They look like they\'re having fun.'},
-                    {'character': 'character2', 'text': 'What should I say to join them?'},
+                    {'character': 'character1', 'text': 'Those kids look like they\'re having fun.'},
+                    {'character': 'character2', 'text': 'I want to join them.'},
+                    {'character': 'character1', 'text': 'But they don\'t know us.'},
+                    {'character': 'character2', 'text': 'Oh, let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"Hi, can I play with you?"', 'is_correct': True},
-                    {'id': 2, 'text': 'Just start playing without asking', 'is_correct': False},
-                    {'id': 3, 'text': 'Wait until they invite you', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Hi, can I join?"', 'is_correct': True},
+                    {'id': 2, 'text': 'Start playing without asking', 'is_correct': False},
+                    {'id': 3, 'text': 'Wait for invite', 'is_correct': False},
+                    {'id': 4, 'text': 'Play alone', 'is_correct': False},
                 ],
                 'character1_name': 'Friend',
                 'character2_name': 'You',
-            },
+            }
         ],
         2: [
             {
                 'title': 'Borrowing Things',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'I really like your book.'},
-                    {'character': 'character2', 'text': 'Thanks! I just got it.'},
-                    {'character': 'character1', 'text': 'Can I borrow it when you\'re done?'},
+                    {'character': 'character1', 'text': 'I like your book.'},
+                    {'character': 'character2', 'text': 'Thanks! Just got it.'},
+                    {'character': 'character1', 'text': 'Can I borrow it later?'},
+                    {'character': 'character2', 'text': 'Let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"Sure, I\'ll let you know when I finish reading it"', 'is_correct': True},
-                    {'id': 2, 'text': '"No, I don\'t want to share"', 'is_correct': False},
-                    {'id': 3, 'text': '"Only if you give me something in return"', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Sure, when I\'m done"', 'is_correct': True},
+                    {'id': 2, 'text': 'Say "No, I won\'t share"', 'is_correct': False},
+                    {'id': 3, 'text': 'Say "Only if you trade"', 'is_correct': False},
+                    {'id': 4, 'text': 'Say "Buy your own"', 'is_correct': False},
                 ],
                 'character1_name': 'Classmate',
                 'character2_name': 'You',
-            },
+            }
         ],
         3: [
             {
                 'title': 'Resolving Conflicts',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'Hey! You took the toy I was playing with!'},
-                    {'character': 'character2', 'text': 'I didn\'t know you were still using it.'},
-                    {'character': 'character1', 'text': 'Well, I was! Give it back!'},
+                    {'character': 'character1', 'text': 'You took my toy!'},
+                    {'character': 'character2', 'text': 'I didn\'t know you were using it.'},
+                    {'character': 'character1', 'text': 'I was! Give it back!'},
+                    {'character': 'character2', 'text': 'Oh, let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"I\'m sorry. Here\'s your toy back. Can we take turns?"', 'is_correct': True},
-                    {'id': 2, 'text': '"No, I have it now"', 'is_correct': False},
-                    {'id': 3, 'text': 'Ignore them and keep playing', 'is_correct': False},
-                    {'id': 4, 'text': 'Go tell a teacher they\'re being mean', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Sorry! Let\'s take turns?"', 'is_correct': True},
+                    {'id': 2, 'text': 'Say "It\'s mine now"', 'is_correct': False},
+                    {'id': 3, 'text': 'Keep playing', 'is_correct': False},
+                    {'id': 4, 'text': 'Start crying', 'is_correct': False},
                 ],
                 'character1_name': 'Friend',
                 'character2_name': 'You',
-            },
-        ],
+            }
+        ]
     },
     '9-12': {
         1: [
             {
                 'title': 'Group Project',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'We need to pick a topic for our science project.'},
-                    {'character': 'character2', 'text': 'I have an idea about solar energy.'},
-                    {'character': 'character1', 'text': 'I was thinking we could do something about animals.'},
+                    {'character': 'character1', 'text': 'We need a science project idea.'},
+                    {'character': 'character2', 'text': 'I thought of solar energy.'},
+                    {'character': 'character1', 'text': 'But I was thinking of animals.'},
+                    {'character': 'character2', 'text': 'Oh, let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"Both ideas sound good. Let\'s discuss the pros and cons of each"', 'is_correct': True},
-                    {'id': 2, 'text': '"My idea is better, let\'s do mine"', 'is_correct': False},
-                    {'id': 3, 'text': '"Whatever, I don\'t care"', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "Let\'s compare both ideas"', 'is_correct': True},
+                    {'id': 2, 'text': 'Say "Mine\'s better! do mine"', 'is_correct': False},
+                    {'id': 3, 'text': 'Say "Whatever"', 'is_correct': False},
+                    {'id': 4, 'text': 'Work on your own', 'is_correct': False},
                 ],
                 'character1_name': 'Classmate',
                 'character2_name': 'You',
-            },
+            }
         ],
         2: [
             {
                 'title': 'Online Communication',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'Someone in our group chat said something mean about you.'},
-                    {'character': 'character2', 'text': 'Really? What did they say?'},
-                    {'character': 'character1', 'text': 'They said you cheated on the math test.'},
+                    {'character': 'character1', 'text': 'Someone said mean stuff about you.'},
+                    {'character': 'character2', 'text': 'What did they say?'},
+                    {'character': 'character1', 'text': 'They said you cheated.'},
+                    {'character': 'character2', 'text': 'Oh, let me think...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"That\'s not true. I should talk to them directly about this"', 'is_correct': True},
-                    {'id': 2, 'text': '"Say something mean about them too"', 'is_correct': False},
-                    {'id': 3, 'text': 'Send an angry message to the group chat', 'is_correct': False},
-                    {'id': 4, 'text': 'Ignore it and hope it goes away', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "That\'s not true. I\'ll talk to them"', 'is_correct': True},
+                    {'id': 2, 'text': 'Be mean back', 'is_correct': False},
+                    {'id': 3, 'text': 'Send an angry message', 'is_correct': False},
+                    {'id': 4, 'text': 'Ignore it', 'is_correct': False},
                 ],
                 'character1_name': 'Friend',
                 'character2_name': 'You',
-            },
+            }
         ],
         3: [
             {
                 'title': 'Being Excluded',
                 'dialogues': [
-                    {'character': 'character1', 'text': 'We\'re having a party this weekend.'},
-                    {'character': 'character2', 'text': 'Oh, that sounds fun!'},
-                    {'character': 'character1', 'text': 'Yeah, but we can only invite a few people...'},
-                    {'character': 'character2', 'text': 'I see. Am I invited?'},
+                    {'character': 'character1', 'text': 'We\'re having a party.'},
+                    {'character': 'character2', 'text': 'Sounds fun!'},
+                    {'character': 'character1', 'text': 'But only a few can come...'},
+                    {'character': 'character2', 'text': 'Am I invited?'},
                     {'character': 'character1', 'text': 'Sorry, not this time.'},
+                    {'character': 'character2', 'text': '...'},
                 ],
                 'options': [
-                    {'id': 1, 'text': '"That\'s okay. I hope you have fun. Maybe we can do something together another time."', 'is_correct': True},
-                    {'id': 2, 'text': '"Fine, I didn\'t want to come to your stupid party anyway!"', 'is_correct': False},
+                    {'id': 1, 'text': 'Say "That\'s okay. Have fun!"', 'is_correct': True},
+                    {'id': 2, 'text': 'Say "Didn\'t want to come anyway!"', 'is_correct': False},
                     {'id': 3, 'text': 'Start crying', 'is_correct': False},
-                    {'id': 4, 'text': 'Tell other friends not to go to the party', 'is_correct': False},
+                    {'id': 4, 'text': 'Tell others not to go', 'is_correct': False},
                 ],
                 'character1_name': 'Classmate',
                 'character2_name': 'You',
-            },
-        ],
-    },
+            }
+        ]
+    }
 }
 
 @api_view(['GET'])
