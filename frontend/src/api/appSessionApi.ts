@@ -11,36 +11,34 @@ export const startAppSession = async () => {
 
   if (!childId) throw new Error("Child ID not found");
 
-  const sessionKey = `sessionStarted-${childId}-${format(new Date(), "yyyy-MM-dd")}`;
-  const alreadyStarted = await AsyncStorage.getItem(sessionKey);
-
-  if (!alreadyStarted) {
-    try {
-      const response = await fetch(
-        `${API_URL}children/${childId}/app-usage/start/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+  try {
+    const response = await fetch(
+      `${API_URL}children/${childId}/app-usage/start/`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      },
+    );
 
-      const data = await response.json();
+    const data = await response.json();
 
-      // 💡 Save sessionKey if response is OK *or* API says session already exists
-      if (response.ok || data?.detail?.includes("already exists")) {
-        await AsyncStorage.setItem(sessionKey, "true");
-        console.log("App session handled:", data);
-        return data;
+    if (response.ok) {
+      if (data?.id) {
+        const sessionId = `sessionId-${childId}-${format(new Date(), "yyyy-MM-dd")}`;
+        await AsyncStorage.setItem(sessionId, data.id.toString());
       }
 
-      // Otherwise, treat it as a failure
-      throw new Error(`Unexpected error: ${JSON.stringify(data)}`);
-    } catch (error) {
-      console.error("Error starting app session:", error);
+      console.log("App session handled:", data.id);
+      return data;
     }
+
+    // Otherwise, treat it as a failure
+    throw new Error(`Unexpected error: ${JSON.stringify(data)}`);
+  } catch (error) {
+    console.error("Error starting app session:", error);
   }
 };
 
@@ -78,8 +76,11 @@ export const checkActiveSession = async () => {
   }
 };
 
-export const endAppSession = async (durationInSeconds: number) => {
-  const sessionId = await checkActiveSession();
+export const endAppSession = async (
+  duration: number,
+  limitCrossed: boolean,
+) => {
+  const sessionId = await checkActiveSession(); // Check for active session
 
   if (!sessionId) {
     console.warn("No active session to end");
@@ -94,12 +95,12 @@ export const endAppSession = async (durationInSeconds: number) => {
 
   try {
     const response = await fetch(`${API_URL}app-usage/${sessionId}/end/`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ duration: durationInSeconds }),
+      body: JSON.stringify({ duration: duration, limit_crossed: limitCrossed }),
     });
 
     const data = await response.json();

@@ -12,7 +12,10 @@ import { GameAppBar, MyModal, ScoreCard } from "../../../components";
 import { styles } from "./index.styles";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { instructions } from "./instructionsData";
-import { fetchMatchAndSortGameAssets } from "../../../api/matchAndSortApi";
+import {
+  endMatchAndSortGameSession,
+  fetchMatchAndSortGameAssets,
+} from "../../../api/matchAndSortApi";
 import { SvgXml } from "react-native-svg";
 import { Bucket, FallingObject } from "../../../types";
 import theme from "../../../../theme";
@@ -35,41 +38,59 @@ export default function MatchAndSort() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [bucketSets, setBucketSets] = useState<any[]>([]);
+  const [setIndex, setSetIndex] = useState(0);
 
   const fallAnimation = useRef(new Animated.Value(0)).current;
   const moveX = useRef(new Animated.Value(0)).current;
   const latestMoveX = useRef(0);
   const confettiRef = useRef<any>();
 
-  /* Fetch game assets and set initial game state */
+  const latestScore = useRef(score);
+  const totalObjects = useRef(0);
+
+  useEffect(() => {
+    latestScore.current = score;
+  }, [score]);
+
   useEffect(() => {
     const initializeGame = async () => {
       const data = await fetchMatchAndSortGameAssets();
-      const numBuckets = data.buckets.length;
+      setAgeGroup(data.age_group);
 
-      const availableWidth = SCREEN_WIDTH - 2;
+      if (data.age_group === "9-12") {
+        setBucketSets(data.bucket_sets);
+        const total = data.bucket_sets.reduce(
+          (sum: any, set: any) => sum + set.falling_objects.length,
+          0,
+        );
+        totalObjects.current = total;
+        loadSet(data.bucket_sets[0], data.difficulty);
+      } else {
+        const numBuckets = data.buckets.length;
+        totalObjects.current = data.falling_objects.length;
+        const availableWidth = SCREEN_WIDTH - 2;
+        setBucketWidth(availableWidth / numBuckets - 5);
+        const bucketSpacing = availableWidth / numBuckets;
 
-      // Adjust bucket width dynamically
-      setBucketWidth(availableWidth / numBuckets - 5);
+        const enrichedBuckets: Bucket[] = data.buckets.map(
+          (bucket: Bucket, index: number) => ({
+            ...bucket,
+            x: index * bucketSpacing + bucketSpacing / 2,
+          }),
+        );
 
-      const bucketSpacing = availableWidth / numBuckets;
+        const allItems = [...enrichedBuckets, ...data.falling_objects];
+        const svgCache = await fetchSvgCache(allItems);
 
-      const enrichedBuckets: Bucket[] = data.buckets.map(
-        (bucket: Bucket, index: number) => ({
-          ...bucket,
-          x: index * bucketSpacing + bucketSpacing / 2, // Position each bucket
-        }),
-      );
-
-      const allItems = [...enrichedBuckets, ...data.falling_objects];
-      const svgCache = await fetchSvgCache(allItems);
-
-      setCachedSvgs(svgCache);
-
-      configureByDifficulty(data.difficulty);
-      setBuckets(enrichedBuckets);
-      setFallingObjects(data.falling_objects);
-      setIsLoading(false);
+        setCachedSvgs(svgCache);
+        configureByDifficulty(data.difficulty);
+        setBuckets(enrichedBuckets);
+        setFallingObjects(data.falling_objects);
+        totalObjects.current = data.falling_objects.length;
+        setIsLoading(false);
+      }
     };
 
     initializeGame();
@@ -83,7 +104,15 @@ export default function MatchAndSort() {
     };
   }, []);
 
-  /* Start falling animation when the game stops loading */
+  useEffect(() => {
+    return () => {
+      const incorrectAnswers = totalObjects.current - latestScore.current;
+      endMatchAndSortGameSession(latestScore.current, incorrectAnswers)
+        .then(() => console.log("Game session ended"))
+        .catch((err) => console.error("Failed to end session", err));
+    };
+  }, []);
+
   useEffect(() => {
     if (
       !isLoading &&
@@ -95,12 +124,43 @@ export default function MatchAndSort() {
       fallingObjects.length > 0 &&
       currentIndex >= fallingObjects.length
     ) {
-      setGameOver(true);
-      confettiRef?.current?.start();
+      if (ageGroup === "9-12" && setIndex + 1 < bucketSets.length) {
+        // Load next set
+        const nextSet = bucketSets[setIndex + 1];
+        (async () => {
+          await loadSet(nextSet);
+          setSetIndex((prev) => prev + 1);
+          setCurrentIndex(0);
+        })();
+      } else {
+        setGameOver(true);
+        confettiRef?.current?.start();
+      }
     }
   }, [currentIndex, isLoading]);
 
-  /* Fetch and cache SVG images */
+  const loadSet = async (set: any, difficulty?: number) => {
+    const allItems = [...set.buckets, ...set.falling_objects];
+    const svgCache = await fetchSvgCache(allItems);
+    const numBuckets = set.buckets.length;
+    const availableWidth = SCREEN_WIDTH - 2;
+    setBucketWidth(availableWidth / numBuckets - 5);
+    const bucketSpacing = availableWidth / numBuckets;
+
+    const enrichedBuckets: Bucket[] = set.buckets.map(
+      (bucket: Bucket, index: number) => ({
+        ...bucket,
+        x: index * bucketSpacing + bucketSpacing / 2,
+      }),
+    );
+
+    setCachedSvgs((prev) => ({ ...prev, ...svgCache }));
+    if (difficulty) configureByDifficulty(difficulty);
+    setBuckets(enrichedBuckets);
+    setFallingObjects(set.falling_objects);
+    setIsLoading(false);
+  };
+
   const fetchSvgCache = async (items: { id: string; image_url: string }[]) => {
     const cache: { [key: string]: string } = {};
     await Promise.all(
@@ -126,37 +186,59 @@ export default function MatchAndSort() {
 
   /* Start falling animation */
   const startFalling = () => {
+    // First, stop and reset all animations
+    fallAnimation.stopAnimation();
+    moveX.stopAnimation();
+
+    // Reset values BEFORE animation starts
     fallAnimation.setValue(0);
     moveX.setValue(0);
+    moveX.setOffset(0);
+    latestMoveX.current = 0;
 
+    // Now start falling
     Animated.timing(fallAnimation, {
       toValue: 1,
       duration: fallDuration,
       easing: Easing.linear,
       useNativeDriver: true,
     }).start(() => {
-      checkIfCorrect();
+      // When animation finishes, handle drop logic
+      moveX.extractOffset();
+      moveX.stopAnimation((value) => {
+        latestMoveX.current = value;
+        checkIfCorrect();
+        moveX.setValue(0);
+      });
     });
   };
 
   /* Check if the object is dropped in the correct bucket */
   const checkIfCorrect = () => {
     const object = fallingObjects[currentIndex];
-    const objectX = SCREEN_WIDTH / 2 + latestMoveX.current;
+    const objectCenterX = SCREEN_WIDTH / 2 + latestMoveX.current;
 
-    let correctBucket = buckets.find((bucket) => {
-      const bucketLeft = bucket.x - bucketWidth / 2;
-      const bucketRight = bucket.x + bucketWidth / 2;
+    const objectLeft = objectCenterX - fallingObjectSize / 2;
+    const objectRight = objectCenterX + fallingObjectSize / 2;
 
-      return (
-        object.target_bucket_id === bucket.id &&
-        objectX >= bucketLeft &&
-        objectX <= bucketRight
-      );
-    });
+    const targetBucket = buckets.find(
+      (bucket) => bucket.id === object.target_bucket_id,
+    );
 
-    if (correctBucket) {
-      setScore((prevScore) => prevScore + 1);
+    if (targetBucket) {
+      const bucketLeft = targetBucket.x - bucketWidth / 2;
+      const bucketRight = targetBucket.x + bucketWidth / 2;
+
+      const isInsideBucket =
+        objectRight >= bucketLeft && objectLeft <= bucketRight;
+
+      console.log("Object bounds:", objectLeft, objectRight);
+      console.log("Bucket bounds:", bucketLeft, bucketRight);
+      console.log("Is inside correct bucket:", isInsideBucket);
+
+      if (isInsideBucket) {
+        setScore((prevScore) => prevScore + 1);
+      }
     }
 
     setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -167,8 +249,18 @@ export default function MatchAndSort() {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        moveX.setOffset(latestMoveX.current);
+        moveX.setValue(0);
+      },
       onPanResponderMove: (_, gesture) => {
         moveX.setValue(gesture.dx);
+      },
+      onPanResponderRelease: () => {
+        moveX.flattenOffset();
+        moveX.stopAnimation((value) => {
+          latestMoveX.current = value;
+        });
       },
     }),
   ).current;
@@ -179,7 +271,7 @@ export default function MatchAndSort() {
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
       <GameAppBar title="Match and Sort" instructions={instructions} />
-      <ScoreCard score={score} total={fallingObjects.length} />
+      <ScoreCard score={score} total={totalObjects.current} />
 
       {isLoading ? (
         <View style={styles.loader}>
