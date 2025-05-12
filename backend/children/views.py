@@ -1338,7 +1338,9 @@ def start_app_session(request, child_id):
     Start a new app session for a child
     
     Only one active session per child is allowed. If an active session
-    already exists, an error is returned.
+    already exists for the same day, an error is returned.
+    If an active session exists from a previous day, it will be ended
+    and a new one will be created.
     
     Parameters:
         child_id: ID of the child
@@ -1350,21 +1352,16 @@ def start_app_session(request, child_id):
         # Get the child
         child = Child.objects.get(id=child_id, user=request.user)
         
-        # Check if an active session already exists
-        existing_session = Session.get_active_session(child)
-        if existing_session:
-            return Response(
-                {"error": "An active session already exists for this child", 
-                 "session": SessionSerializer(existing_session).data}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Check for existing active session and reset if needed
+        session, was_reset = Session.check_and_reset_session(child)
         
-        # Create a new active session for today
-        session = Session.objects.create(
-            child=child,
-            active=True,
-            session_date=timezone.now().date()
-        )
+        # Return appropriate response based on whether a reset occurred
+        if was_reset:
+            return Response(
+                {"message": "Previous session was automatically ended. New session created.", 
+                 "session": SessionSerializer(session).data}, 
+                status=status.HTTP_201_CREATED
+            )
         
         serializer = SessionSerializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -1389,6 +1386,9 @@ def check_active_session(request, child_id):
     """
     Check if there is an active session for a child
     
+    If an active session exists from a previous day, it will be automatically ended
+    and a new one will be created for today.
+    
     Parameters:
         child_id: ID of the child
     
@@ -1399,12 +1399,19 @@ def check_active_session(request, child_id):
         # Get the child
         child = Child.objects.get(id=child_id, user=request.user)
         
-        # Check for active session
-        active_session = Session.get_active_session(child)
+        # Check for active session and auto-reset if from previous day
+        active_session, was_reset = Session.check_and_reset_session(child)
         
         if active_session:
             serializer = SessionSerializer(active_session)
-            return Response(serializer.data)
+            response_data = serializer.data
+            
+            # Add info about the reset if it occurred
+            if was_reset:
+                response_data['was_reset'] = True
+                response_data['message'] = "Previous session was automatically ended. New session created."
+                
+            return Response(response_data)
         else:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         
@@ -1592,6 +1599,61 @@ def get_child_app_sessions(request, child_id):
         )
     except Exception as e:
         logger.error(f"Error retrieving app sessions: {str(e)}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_app_session_duration(request, session_id):
+    """
+    Update the duration of an active app session without ending it
+    
+    Parameters:
+        session_id: ID of the session to update
+    
+    Request Body:
+        duration: Duration of the session in minutes (required)
+    
+    Returns:
+        Response: JSON with updated session data
+    """
+    try:
+        # Get the session
+        session = Session.objects.get(id=session_id)
+        
+        # Verify the session belongs to a child of the requesting user
+        if not Child.objects.filter(id=session.child.id, user=request.user).exists():
+            return Response(
+                {"error": "You do not have permission to update this session"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get required duration from request
+        duration = request.data.get('duration')
+        if duration is None:
+            return Response(
+                {"error": "Duration is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Update session duration
+        session.duration = duration
+        session.save()
+        
+        serializer = SessionSerializer(session)
+        return Response(serializer.data)
+        
+    except Session.DoesNotExist:
+        logger.warning(f"Session with ID {session_id} not found")
+        return Response(
+            {"error": "Session not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Error updating app session duration: {str(e)}")
         return Response(
             {"error": "An error occurred while processing your request"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

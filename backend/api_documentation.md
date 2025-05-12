@@ -7,6 +7,10 @@ AutiCare implements a two-level session system:
 1. **App Sessions**: Track daily app usage (one per child per day)
 2. **Game Sessions**: Track individual gameplay interactions
 
+App sessions automatically reset at midnight Pakistan time (Asia/Karachi timezone). When any API endpoint is called:
+- If a child has no active session, a new one is created
+- If a child has an active session from a previous day, it is automatically ended and a new one is created
+
 This documentation covers the API endpoints, parameters, and sample responses for managing sessions and tracking progress.
 
 ---
@@ -53,7 +57,45 @@ curl -X GET http://localhost:8000/api/children/1/app-usage/check/ -H "Authorizat
 }
 ```
 
-### 1.3 End App Session
+### 1.3 Update App Session Duration
+```bash
+curl -X PUT http://localhost:8000/api/app-usage/42/update-duration/ -H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json" -d '{"duration": 20}'
+```
+**Required Values:**
+- `session_id` (in URL): ID of the app session to update
+- `duration`: Time spent in minutes for this session so far
+
+**Sample Response:**
+```json
+{
+  "id": 42,
+  "child": 1,
+  "child_name": "Alex",
+  "duration": 20,
+  "limit_crossed": false,
+  "session_date": "2023-05-15",
+  "active": true,
+  "game_sessions": [71, 73],
+  "daily_progress": {
+    "MATCHSORT": {
+      "current_difficulty": 2,
+      "correct_answers": 30,
+      "incorrect_answers": 10,
+      "total_games_played": 5,
+      "score_percentage": 75.0
+    }
+  },
+  "game_usage": {
+    "MATCHSORT": {
+      "correct_answers": 15,
+      "incorrect_answers": 5,
+      "total_plays": 2
+    }
+  }
+}
+```
+
+### 1.4 End App Session
 ```bash
 curl -X PUT http://localhost:8000/api/app-usage/42/end/ -H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json" -d '{"duration": 25, "limit_crossed": false}'
 ```
@@ -105,7 +147,7 @@ curl -X PUT http://localhost:8000/api/app-usage/42/end/ -H "Authorization: Beare
 }
 ```
 
-### 1.4 Get App Session History
+### 1.5 Get App Session History
 ```bash
 curl -X GET http://localhost:8000/api/children/1/app-usage/ -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```

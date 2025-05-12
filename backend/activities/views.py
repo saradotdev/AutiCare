@@ -706,21 +706,90 @@ def end_game_session(request, session_id):
         # Get or create the daily app session for this child
         from children.models import Session as AppSession
         today = timezone.now().date()
-        app_sessions = AppSession.objects.filter(child=session.child, session_date=today)
-
-        if app_sessions.exists():
-            # Just pick the last one to update instead of erroring out
-            app_session = app_sessions.last()
-            created = False
-        else:
-            # Safe to create
+        
+        try:
+            # First try to get the active session
+            app_session = AppSession.objects.get(child=session.child, active=True)
+            
+            # If the session date is not today, end it and create a new one
+            if app_session.session_date != today:
+                app_session.active = False
+                app_session.save()
+                
+                # Ensure no other active sessions exist
+                AppSession.objects.filter(child=session.child, active=True).update(active=False)
+                
+                # Create a new session
+                app_session = AppSession.objects.create(
+                    child=session.child,
+                    session_date=today,
+                    active=True,
+                    duration=0,
+                    limit_crossed=False
+                )
+        except AppSession.DoesNotExist:
+            # Ensure no active sessions exist
+            AppSession.objects.filter(child=session.child, active=True).update(active=False)
+            
+            # Create new session
             app_session = AppSession.objects.create(
                 child=session.child,
                 session_date=today,
-                duration=0,
+                active=True,
+                duration=0, 
                 limit_crossed=False
             )
-            created = True
+        except AppSession.MultipleObjectsReturned:
+            # Handle case where multiple active sessions exist
+            logger.warning(f"Multiple active sessions found for child {session.child.id}")
+            
+            # Keep only the most recent active session
+            active_sessions = AppSession.objects.filter(
+                child=session.child, 
+                active=True
+            ).order_by('-session_date')
+            
+            if active_sessions.exists():
+                app_session = active_sessions.first()
+                
+                # Deactivate all other sessions
+                active_sessions.exclude(id=app_session.id).update(active=False)
+                
+                # If this session is not for today, create a new session
+                if app_session.session_date != today:
+                    app_session.active = False
+                    app_session.save()
+                    app_session = AppSession.objects.create(
+                        child=session.child,
+                        session_date=today,
+                        active=True,
+                        duration=0,
+                        limit_crossed=False
+                    )
+            else:
+                app_session = AppSession.objects.create(
+                    child=session.child,
+                    session_date=today,
+                    active=True,
+                    duration=0,
+                    limit_crossed=False
+                )
+                
+#        app_sessions = AppSession.objects.filter(child=session.child, session_date=today)
+#
+#        if app_sessions.exists():
+#            # Just pick the last one to update instead of erroring out
+#            app_session = app_sessions.last()
+#            created = False
+#        else:
+#            # Safe to create
+#            app_session = AppSession.objects.create(
+#                child=session.child,
+#                session_date=today,
+#                duration=0,
+#                limit_crossed=False
+#            )
+#            created = True
         
         # Associate this game session with the app session
         app_session.add_game_session(session_id)
