@@ -19,6 +19,15 @@ export { default as Home } from "./Main Screens/Home";
 export { default as Guardian } from "./Main Screens/Guardian";
 export { default as Summary } from "./Main Screens/Summary";
 export { default as Settings } from "./Main Screens/Settings";
+export { default as Report } from "./Main Screens/Report";
+
+// Settings Flow
+export { default as Account } from "./Settings Screens/Account";
+export { default as Notifications } from "./Settings Screens/Notifications";
+export { default as ChildProfiles } from "./Settings Screens/ChildProfiles";
+export { default as About } from "./Settings Screens/About";
+export { default as PrivacyPolicy } from "./Settings Screens/PrivacyPolicy";
+export { default as TermsOfService } from "./Settings Screens/TermsOfService";
 
 // Games
 export { default as GuessExpression } from "./Games/GuessExpression";

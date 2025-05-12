@@ -23,12 +23,14 @@ export const styles = StyleSheet.create({
     marginVertical: 0,
     paddingHorizontal: 10,
   },
-  content: {
-    padding: 16,
+  summaryContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colorSoftGrey,
   },
   today: {
     fontSize: 24,
-    paddingTop: 40,
   },
   date: {
     fontSize: 12,
@@ -59,5 +61,39 @@ export const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: theme.colorSummerSky,
     borderRadius: 10,
+  },
+  reportContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 40,
+  },
+  reportTitle: {
+    fontSize: 35,
+    paddingBottom: 10,
+  },
+  infoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 20,
+    backgroundColor: theme.colorSoftGrey,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginVertical: 20,
+  },
+  infoIcon: {
+    backgroundColor: theme.colorBlue,
+    padding: 5,
+    borderRadius: 50,
+    marginLeft: 10,
+    marginRight: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    color: theme.colorCharcoal,
+    fontFamily: theme.poppinsLight,
+  },
+  cta: {
+    backgroundColor: theme.colorSummerSky,
+    width: "80%",
+    alignSelf: "center",
   },
 });

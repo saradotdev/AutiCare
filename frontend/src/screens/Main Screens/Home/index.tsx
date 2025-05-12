@@ -18,7 +18,7 @@ import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Game } from "../../../types";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useSessionTracker } from "../../../hooks";
+import { useBackgroundMusic, useSessionTracker } from "../../../hooks";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
@@ -61,7 +61,7 @@ const keys = [
 ];
 
 export default function Home() {
-  useSessionTracker(); // Start tracking session time for child
+  const { stopTimer } = useSessionTracker(); // start session tracking
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
@@ -69,10 +69,13 @@ export default function Home() {
   const [modalVisible, setModalVisible] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const { playMusic } = useBackgroundMusic();
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
+    playMusic();
+
     const getData = async () => {
       try {
         const response = await fetchData();
@@ -93,7 +96,8 @@ export default function Home() {
       setTimeout(() => {
         setModalVisible(false);
         setPinInput("");
-        navigation.navigate("Guardian" as never);
+        stopTimer(); // stop session tracking before navigating to Guardian
+        navigation.reset({ index: 0, routes: [{ name: "Guardian" }] });
       }, 300);
     }
   }, [pinInput]);
@@ -167,6 +171,7 @@ export default function Home() {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <TouchableOpacity
+              hitSlop={20}
               style={styles.modalCloseButton}
               onPress={() => setModalVisible(false)}
             >

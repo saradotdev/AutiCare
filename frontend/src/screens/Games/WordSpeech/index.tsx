@@ -1,26 +1,32 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, SafeAreaView, Dimensions, ScrollView, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
-import theme from '../../../../theme';
-import { styles } from './index.styles';
-import Svg, { Path } from 'react-native-svg';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../../types';
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  SafeAreaView,
+  Dimensions,
+  ScrollView,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
+import theme from "../../../../theme";
+import { styles } from "./index.styles";
+import Svg, { Path } from "react-native-svg";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { LevelButtonProps, RootStackParamList } from "../../../types";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
-interface LevelButtonProps {
-  level: number;
-  onPress: () => void;
-  isLocked?: boolean;
-  style: any;
-}
-
-const LevelButton: React.FC<LevelButtonProps> = ({ level, onPress, isLocked = false, style }) => {
+const LevelButton: React.FC<LevelButtonProps> = ({
+  level,
+  onPress,
+  isLocked = false,
+  style,
+}) => {
   return (
-    <TouchableOpacity 
-      style={[styles.levelButton, isLocked && styles.lockedLevel, style]} 
+    <TouchableOpacity
+      style={[styles.levelButton, isLocked && styles.lockedLevel, style]}
       onPress={onPress}
       disabled={isLocked}
     >
@@ -38,7 +44,7 @@ const WordSpeechLevelsScreen = () => {
 
   const handleLevelPress = (level: number) => {
     // Navigate to the game screen with the selected level
-    navigation.navigate('WordSpeechGame', { level });
+    navigation.navigate("WordSpeechGame", { level });
   };
 
   const goBack = () => {
@@ -51,13 +57,13 @@ const WordSpeechLevelsScreen = () => {
   // Calculate positions for the snake pattern - adjusted to match the image more closely
   // Using absolute positions that work with scrolling
   const levelPositions = [
-    { top: height * 0.15, left: width * 0.45 },         // Level 1 (center-top)
-    { top: height * 0.25, left: width * 0.7 },          // Level 2 (right)
-    { top: height * 0.35, left: width * 0.25 },         // Level 3 (left)
-    { top: height * 0.47, left: width * 0.55 },         // Level 4 (right)
-    { top: height * 0.59, left: width * 0.35 },         // Level 5 (left)
-    { top: height * 0.71, left: width * 0.65 },         // Level 6 (right)
-    { top: height * 0.83, left: width * 0.45 },         // Level 7 (center-bottom)
+    { top: height * 0.15, left: width * 0.45 }, // Level 1 (center-top)
+    { top: height * 0.25, left: width * 0.7 }, // Level 2 (right)
+    { top: height * 0.35, left: width * 0.25 }, // Level 3 (left)
+    { top: height * 0.47, left: width * 0.55 }, // Level 4 (right)
+    { top: height * 0.59, left: width * 0.35 }, // Level 5 (left)
+    { top: height * 0.71, left: width * 0.65 }, // Level 6 (right)
+    { top: height * 0.83, left: width * 0.45 }, // Level 7 (center-bottom)
   ];
 
   // Calculate the total content height to ensure scrolling works properly
@@ -66,23 +72,36 @@ const WordSpeechLevelsScreen = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../../../assets/images/background.png')}
+        source={require("../../../assets/images/background.png")}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
       >
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.header}>
             <TouchableOpacity onPress={goBack} style={styles.backButton}>
-              <MaterialIcons name="arrow-back" size={24} color={theme.colorSummerSky} />
+              <MaterialIcons
+                name="arrow-back"
+                size={24}
+                color={theme.colorSummerSky}
+              />
             </TouchableOpacity>
             <Text style={styles.title}>Let's Begin!</Text>
             <View style={{ width: 30 }} />
           </View>
 
-          <ScrollView contentContainerStyle={[styles.scrollContent, { height: contentHeight }]}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { height: contentHeight },
+            ]}
+          >
             <View style={styles.levelsContainer}>
               {/* SVG Path connecting the level buttons */}
-              <Svg height={contentHeight} width="100%" style={styles.pathContainer}>
+              <Svg
+                height={contentHeight}
+                width="100%"
+                style={styles.pathContainer}
+              >
                 <Path
                   d={`M ${width * 0.45} ${height * 0.18} 
                       C ${width * 0.6} ${height * 0.2}, ${width * 0.65} ${height * 0.22}, ${width * 0.7} ${height * 0.28}
@@ -101,13 +120,13 @@ const WordSpeechLevelsScreen = () => {
 
               {/* Level buttons */}
               {[1, 2, 3, 4, 5, 6, 7].map((level) => (
-                <LevelButton 
+                <LevelButton
                   key={level}
                   level={level}
                   onPress={() => handleLevelPress(level)}
                   isLocked={isLevelLocked(level)}
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: levelPositions[level - 1].top,
                     left: levelPositions[level - 1].left,
                     backgroundColor: theme.colorSummerSky,
@@ -123,4 +142,4 @@ const WordSpeechLevelsScreen = () => {
   );
 };
 
-export default WordSpeechLevelsScreen; 
+export default WordSpeechLevelsScreen;

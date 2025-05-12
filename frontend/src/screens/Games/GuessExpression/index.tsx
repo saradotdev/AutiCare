@@ -13,7 +13,10 @@ import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { styles } from "./index.styles";
 import { instructions } from "./instructionsData";
-import { fetchFacialExpressions } from "../../../api/facialExpressionsApi";
+import {
+  endFacialExpressionsSession,
+  fetchFacialExpressions,
+} from "../../../api/facialExpressionsApi";
 import { SvgXml } from "react-native-svg";
 
 const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
@@ -68,6 +71,16 @@ export default function GuessExpression() {
     };
 
     initializeGame();
+  }, []);
+
+  /* End game session when user navigates away */
+  useEffect(() => {
+    return () => {
+      // Called automatically when user navigates away from this screen
+      endFacialExpressionsSession()
+        .then(() => console.log("Game session ended"))
+        .catch((err) => console.error("Failed to end session", err));
+    };
   }, []);
 
   /* Shuffle array */
