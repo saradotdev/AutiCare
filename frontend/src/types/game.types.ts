@@ -53,3 +53,26 @@ export interface LevelButtonProps {
   isLocked?: boolean;
   style: any;
 }
+
+type Dialogue = {
+  character: string;
+  text: string;
+};
+
+type Option = {
+  id: number;
+  text: string;
+  is_correct: boolean;
+};
+
+export type SocialScenario = {
+  id: number;
+  title: string;
+  age_group: string;
+  difficulty: number;
+  character1_name: string;
+  character2_name: string;
+  dialogues: Dialogue[];
+  options: Option[];
+  session_id: number;
+};

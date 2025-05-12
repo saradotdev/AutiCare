@@ -11,14 +11,14 @@ import {
 import { GameAppBar, MyModal, ScoreCard } from "../../../components";
 import { styles } from "./index.styles";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { instructions } from "./instructionsData";
 import {
   endMatchAndSortGameSession,
   fetchMatchAndSortGameAssets,
-} from "../../../api/matchAndSortApi";
+} from "../../../api/matchAndSortGameApi";
 import { SvgXml } from "react-native-svg";
 import { Bucket, FallingObject } from "../../../types";
 import theme from "../../../../theme";
+import { getMatchAndSortGameInstructions } from "./instructionsData";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -41,6 +41,7 @@ export default function MatchAndSort() {
   const [ageGroup, setAgeGroup] = useState<string | null>(null);
   const [bucketSets, setBucketSets] = useState<any[]>([]);
   const [setIndex, setSetIndex] = useState(0);
+  const [gameInstructions, setGameInstructions] = useState<string[]>([]);
 
   const fallAnimation = useRef(new Animated.Value(0)).current;
   const moveX = useRef(new Animated.Value(0)).current;
@@ -59,8 +60,23 @@ export default function MatchAndSort() {
       const data = await fetchMatchAndSortGameAssets();
       setAgeGroup(data.age_group);
 
+      const instructions = getMatchAndSortGameInstructions(
+        data.age_group,
+        data.difficulty,
+      );
+      setGameInstructions(instructions);
+
       if (data.age_group === "9-12") {
         setBucketSets(data.bucket_sets);
+
+        // Flatten all items from all sets for preloading
+        const allItems = data.bucket_sets.flatMap((set: any) => [
+          ...set.buckets,
+          ...set.falling_objects,
+        ]);
+        const svgCache = await fetchSvgCache(allItems);
+        setCachedSvgs(svgCache);
+
         const total = data.bucket_sets.reduce(
           (sum: any, set: any) => sum + set.falling_objects.length,
           0,
@@ -85,10 +101,12 @@ export default function MatchAndSort() {
         const svgCache = await fetchSvgCache(allItems);
 
         setCachedSvgs(svgCache);
+
         configureByDifficulty(data.difficulty);
         setBuckets(enrichedBuckets);
         setFallingObjects(data.falling_objects);
         totalObjects.current = data.falling_objects.length;
+
         setIsLoading(false);
       }
     };
@@ -140,8 +158,6 @@ export default function MatchAndSort() {
   }, [currentIndex, isLoading]);
 
   const loadSet = async (set: any, difficulty?: number) => {
-    const allItems = [...set.buckets, ...set.falling_objects];
-    const svgCache = await fetchSvgCache(allItems);
     const numBuckets = set.buckets.length;
     const availableWidth = SCREEN_WIDTH - 2;
     setBucketWidth(availableWidth / numBuckets - 5);
@@ -154,7 +170,6 @@ export default function MatchAndSort() {
       }),
     );
 
-    setCachedSvgs((prev) => ({ ...prev, ...svgCache }));
     if (difficulty) configureByDifficulty(difficulty);
     setBuckets(enrichedBuckets);
     setFallingObjects(set.falling_objects);
@@ -186,24 +201,19 @@ export default function MatchAndSort() {
 
   /* Start falling animation */
   const startFalling = () => {
-    // First, stop and reset all animations
     fallAnimation.stopAnimation();
     moveX.stopAnimation();
 
-    // Reset values BEFORE animation starts
     fallAnimation.setValue(0);
     moveX.setValue(0);
     moveX.setOffset(0);
     latestMoveX.current = 0;
-
-    // Now start falling
     Animated.timing(fallAnimation, {
       toValue: 1,
       duration: fallDuration,
       easing: Easing.linear,
       useNativeDriver: true,
     }).start(() => {
-      // When animation finishes, handle drop logic
       moveX.extractOffset();
       moveX.stopAnimation((value) => {
         latestMoveX.current = value;
@@ -231,10 +241,6 @@ export default function MatchAndSort() {
 
       const isInsideBucket =
         objectRight >= bucketLeft && objectLeft <= bucketRight;
-
-      console.log("Object bounds:", objectLeft, objectRight);
-      console.log("Bucket bounds:", bucketLeft, bucketRight);
-      console.log("Is inside correct bucket:", isInsideBucket);
 
       if (isInsideBucket) {
         setScore((prevScore) => prevScore + 1);
@@ -270,7 +276,7 @@ export default function MatchAndSort() {
   return (
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
-      <GameAppBar title="Match and Sort" instructions={instructions} />
+      <GameAppBar title="Match and Sort" instructions={gameInstructions} />
       <ScoreCard score={score} total={totalObjects.current} />
 
       {isLoading ? (
@@ -313,23 +319,21 @@ export default function MatchAndSort() {
 
           {/* Buckets */}
           <View style={styles.row}>
-            {buckets.map((bucket, index) => {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    position: "absolute",
-                    left: bucket.x - bucketWidth / 2,
-                  }}
-                >
-                  <SvgXml
-                    xml={cachedSvgs[bucket.id]}
-                    width={bucketWidth}
-                    height={150}
-                  />
-                </View>
-              );
-            })}
+            {buckets.map((bucket, index) => (
+              <View
+                key={index}
+                style={{
+                  position: "absolute",
+                  left: bucket.x - bucketWidth / 2,
+                }}
+              >
+                <SvgXml
+                  xml={cachedSvgs[bucket.id]}
+                  width={bucketWidth}
+                  height={150}
+                />
+              </View>
+            ))}
           </View>
         </View>
       )}

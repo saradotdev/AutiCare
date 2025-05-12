@@ -60,6 +60,10 @@ export const fetchData = async () => {
         timeOfPractice.toString(),
       );
 
+      // Extract age from API response and store it for later use
+      const age = children[0].age;
+      await AsyncStorage.setItem(`age-${childId}`, age);
+
       console.log("Child ID stored:", childId);
       console.log("Time of practice stored:", timeOfPractice);
     } else {

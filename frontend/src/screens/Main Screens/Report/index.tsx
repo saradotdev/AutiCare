@@ -11,6 +11,7 @@ import { styles } from "./index.styles";
 import { fetchGameProgressData } from "../../../api/gameProgressApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { format } from "date-fns";
+import { getSkillsPracticed } from "./skillsData";
 
 // Map game codes to display properties
 const GAME_DEFINITIONS = [
@@ -82,16 +83,24 @@ export default function Report() {
   useEffect(() => {
     const loadProgressData = async () => {
       try {
+        const token = await AsyncStorage.getItem("jwtToken");
+        const childId = await AsyncStorage.getItem(`childId-${token}`);
+
+        const age = (await AsyncStorage.getItem(`age-${childId}`)) || "3-5";
+
         const allStats = await Promise.all(
           GAME_DEFINITIONS.map(async (game) => {
             const data = await fetchGameProgressData(game.gameCode);
+            const difficulty = data?.current_difficulty ?? "N/A";
             return {
               ...game,
-              difficulty: data?.current_difficulty ?? "N/A",
+              difficulty,
               score: data?.score_percentage?.toFixed(0) ?? "N/A",
+              skills: getSkillsPracticed(game.gameCode, difficulty, age),
             };
           }),
         );
+
         setGameStats(allStats);
       } catch (err) {
         console.error("Error loading progress data", err);
@@ -203,6 +212,20 @@ export default function Report() {
               >
                 {item.score}%
               </MyText>
+            </View>
+
+            {/* Skills Display Section */}
+            <View>
+              <MyText style={styles.subText}>Skills Practiced:</MyText>
+              <FlatList
+                data={item.skills} // The array of skills from your `getSkillsPracticed` function
+                keyExtractor={(skill, index) => index.toString()}
+                renderItem={({ item: skill }) => (
+                  <View>
+                    <MyText style={styles.subText}>• {skill}</MyText>
+                  </View>
+                )}
+              />
             </View>
           </View>
         )}
