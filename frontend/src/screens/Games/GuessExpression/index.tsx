@@ -12,11 +12,11 @@ import * as Images from "../../../assets";
 import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { styles } from "./index.styles";
-import { instructions } from "./instructionsData";
+import { getFacialGameInstructions } from "./instructionsData";
 import {
   endFacialExpressionsSession,
   fetchFacialExpressions,
-} from "../../../api/facialExpressionsApi";
+} from "../../../api/facialExpressionsGameApi";
 import { SvgXml } from "react-native-svg";
 
 const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
@@ -30,6 +30,11 @@ export default function GuessExpression() {
   const [modalText, setModalText] = useState("");
   const confettiRef = useRef<any>();
   const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [gameInstructions, setGameInstructions] = useState<string[]>([]);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
+  const correctRef = useRef(0);
+  const incorrectRef = useRef(0);
 
   /* States for age groups 3-5 and 6-8 */
   const [expressions, setExpressions] = useState<
@@ -67,6 +72,12 @@ export default function GuessExpression() {
         await setupOlderAgeGroup(data.expressions);
       }
 
+      const instructions = getFacialGameInstructions(
+        data.age_group,
+        data.difficulty,
+      );
+      setGameInstructions(instructions);
+
       setIsLoading(false);
     };
 
@@ -76,8 +87,7 @@ export default function GuessExpression() {
   /* End game session when user navigates away */
   useEffect(() => {
     return () => {
-      // Called automatically when user navigates away from this screen
-      endFacialExpressionsSession()
+      endFacialExpressionsSession(correctRef.current, incorrectRef.current)
         .then(() => console.log("Game session ended"))
         .catch((err) => console.error("Failed to end session", err));
     };
@@ -166,9 +176,17 @@ export default function GuessExpression() {
     animateButton(guess);
 
     if (guess === currentExpression?.name) {
+      setCorrectCount((prev) => {
+        correctRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Yay!!\nExcellent", true);
       setTimeout(() => moveToNextExpression(), 2000);
     } else {
+      setIncorrectCount((prev) => {
+        incorrectRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Oops!!\nTry Again");
     }
   };
@@ -176,9 +194,17 @@ export default function GuessExpression() {
   /* Handle guess for age group 9-12 */
   const handleOlderAgeGroupGuess = (isCorrect: boolean) => {
     if (isCorrect) {
+      setCorrectCount((prev) => {
+        correctRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Yay!!\nExcellent", true);
       setTimeout(() => moveToNextImageSet(), 2000);
     } else {
+      setIncorrectCount((prev) => {
+        incorrectRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Oops!!\nTry Again");
     }
   };
@@ -202,7 +228,7 @@ export default function GuessExpression() {
 
   /* Show modal with message */
   const showModal = (message: string, confetti: boolean = false) => {
-    setScore(score + 1);
+    setScore((prev) => prev + 1);
     setModalText(message);
     setModalVisible(true);
     if (confetti) confettiRef.current?.start();
@@ -231,7 +257,10 @@ export default function GuessExpression() {
   return (
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
-      <GameAppBar title="Guess the Expression" instructions={instructions} />
+      <GameAppBar
+        title="Guess the Expression"
+        instructions={gameInstructions}
+      />
 
       {isLoading ? (
         <View style={styles.loader}>

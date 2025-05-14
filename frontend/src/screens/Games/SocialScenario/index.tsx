@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   ImageBackground,
   Text,
@@ -10,49 +11,78 @@ import { styles } from "./index.styles";
 import { GameAppBar, MyModal } from "../../../components";
 import * as Images from "../../../assets";
 import ConfettiCannon from "react-native-confetti-cannon";
+import {
+  endSocialScenarioGameSession,
+  fetchSocialScenarios,
+} from "../../../api/socialScenarioGameApi";
+import { SocialScenario } from "../../../types";
+import theme from "../../../../theme";
+import { gameInstructions } from "./instructionsData";
 
 const gameBg = require("../../../assets/images/GameBackground.png");
 
-export default function SocialScenario() {
-  const dialogues = [
-    "Hi there! Welcome to the game.",
-    "You're about to learn some cool social skills.",
-    "Ready to begin? Let's go!",
-  ];
-
-  const options = [
-    "Say hello back and smile",
-    "Ignore and walk away",
-    "Look confused",
-    "Tell them to leave you alone",
-  ];
-  const correctOption = "Say hello back and smile";
-
-  const [currentIndex, setCurrentIndex] = useState(0);
+export default function SocialScenarioGame() {
+  const [scenarios, setScenarios] = useState<SocialScenario[]>([]);
+  const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
+  const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalText, setModalText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
+  const correctRef = useRef(0);
+  const incorrectRef = useRef(0);
   const confettiRef = useRef<any>();
 
   useEffect(() => {
-    if (currentIndex < dialogues.length - 1) {
+    const loadScenarios = async () => {
+      const data = await fetchSocialScenarios();
+      if (data?.scenarios) {
+        setScenarios(data.scenarios);
+        setLoading(false);
+      }
+    };
+    loadScenarios();
+  }, []);
+
+  const currentScenario = scenarios[currentScenarioIndex];
+  const dialogues = currentScenario?.dialogues || [];
+
+  useEffect(() => {
+    if (!currentScenario) return;
+    if (currentDialogueIndex < dialogues.length - 1) {
       const timeout = setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
+        setCurrentDialogueIndex((prev) => prev + 1);
       }, 3000);
       return () => clearTimeout(timeout);
     } else {
-      // Last dialogue — show options after short pause
-      const timeout = setTimeout(() => {
-        setShowOptions(true);
-      }, 3000); // slight delay for polish
+      const timeout = setTimeout(() => setShowOptions(true), 3000);
       return () => clearTimeout(timeout);
     }
-  }, [currentIndex]);
+  }, [currentDialogueIndex, currentScenario]);
 
-  const handleGuess = (option: string) => {
-    if (option === correctOption) {
+  useEffect(() => {
+    return () => {
+      endSocialScenarioGameSession(correctRef.current, incorrectRef.current)
+        .then(() => console.log("Game session ended"))
+        .catch((err) => console.error("Failed to end session", err));
+    };
+  }, []);
+
+  const handleGuess = (option: any) => {
+    const isCorrect = option.is_correct;
+    if (isCorrect) {
+      setCorrectCount((prev) => {
+        correctRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Good job!!\nCorrect", true);
     } else {
+      setIncorrectCount((prev) => {
+        incorrectRef.current = prev + 1;
+        return prev + 1;
+      });
       showModal("Almost there!!\nTry again");
     }
   };
@@ -61,37 +91,51 @@ export default function SocialScenario() {
     setModalText(message);
     setModalVisible(true);
     if (confetti) confettiRef.current?.start();
-    setTimeout(() => setModalVisible(false), 2000);
+    setTimeout(() => {
+      setModalVisible(false);
+      // Move to next scenario if answer was correct
+      if (confetti && currentScenarioIndex < scenarios.length - 1) {
+        setCurrentScenarioIndex((prev) => prev + 1);
+        setCurrentDialogueIndex(0);
+        setShowOptions(false);
+      }
+    }, 2000);
   };
 
   // Alternate bubbles: even index = left, odd = right
   const BubbleComponent =
-    currentIndex % 2 === 0 ? Images.BubbleLeft : Images.BubbleRight;
+    currentDialogueIndex % 2 === 0 ? Images.BubbleLeft : Images.BubbleRight;
 
   return (
     <ImageBackground source={gameBg} style={styles.container}>
       <View style={styles.overlay}></View>
-      <GameAppBar title="Social Scenario" instructions={[]} />
+      <GameAppBar title="Social Scenario" instructions={gameInstructions} />
 
-      {!showOptions ? (
+      {loading ? (
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color={theme.colorSummerSky} />
+        </View>
+      ) : !showOptions ? (
         <View style={styles.bubbleContainer}>
           <BubbleComponent style={styles.bubble} />
           <View style={styles.textOverlay}>
-            <Text style={styles.bubbleText}>{dialogues[currentIndex]}</Text>
+            <Text style={styles.bubbleText}>
+              {dialogues[currentDialogueIndex]?.text || ""}
+            </Text>
           </View>
         </View>
       ) : (
         <View style={styles.optionsContainer}>
-          <Text style={styles.optionsHeading}>Choose the correct response</Text>
+          <Text style={styles.optionsHeading}>What should you do?</Text>
           <View style={styles.buttonsContainer}>
-            {options.map((option, index) => (
+            {currentScenario?.options.map((option: any, index: any) => (
               <TouchableOpacity
                 key={index}
                 style={styles.optionButton}
                 activeOpacity={0.8}
                 onPress={() => handleGuess(option)}
               >
-                <Text style={styles.optionText}>{option}</Text>
+                <Text style={styles.optionText}>{option.text}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -107,7 +151,7 @@ export default function SocialScenario() {
         visible={modalVisible}
         text={modalText}
         onClose={() => setModalVisible(false)}
-      ></MyModal>
+      />
 
       <ConfettiCannon
         ref={confettiRef}

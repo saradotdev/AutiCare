@@ -83,4 +83,9 @@ export const styles = StyleSheet.create({
     fontFamily: theme.comicSansMS,
     textAlign: "center",
   },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

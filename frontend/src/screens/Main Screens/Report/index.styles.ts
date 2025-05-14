@@ -52,7 +52,6 @@ export const styles = StyleSheet.create({
   gameStatsCard: {
     marginTop: 16,
     borderRadius: 20,
-    height: 150,
     justifyContent: "space-between",
     padding: 10,
   },
@@ -70,6 +69,7 @@ export const styles = StyleSheet.create({
     color: theme.colorWhite,
     borderRadius: 10,
     paddingVertical: 5,
+    marginVertical: 5,
     width: 80,
     textAlign: "center",
   },

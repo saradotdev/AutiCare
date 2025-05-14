@@ -1,7 +1,7 @@
 import { API_URL } from "../constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const startMatchAndSortGameSession = async () => {
+export const startSocialScenarioGameSession = async () => {
   try {
     const token = await AsyncStorage.getItem("jwtToken");
     const childId = await AsyncStorage.getItem(`childId-${token}`); // Retrieve stored child ID
@@ -9,7 +9,7 @@ export const startMatchAndSortGameSession = async () => {
     if (!childId) throw new Error("Child ID not found");
 
     const response = await fetch(
-      `${API_URL}children/${childId}/start-session/MATCHSORT/`,
+      `${API_URL}children/${childId}/start-session/SOCIAL/`,
       {
         method: "POST",
         headers: {
@@ -25,7 +25,7 @@ export const startMatchAndSortGameSession = async () => {
     }
 
     const data = await response.json();
-    console.log("Match And Sort Session Started:", data);
+    console.log("Social Scenario Session Started:", data);
 
     const gameSessionId = data.session_id;
     await AsyncStorage.setItem(
@@ -39,17 +39,17 @@ export const startMatchAndSortGameSession = async () => {
   }
 };
 
-export const fetchMatchAndSortGameAssets = async () => {
+export const fetchSocialScenarios = async () => {
   try {
     const token = await AsyncStorage.getItem("jwtToken");
     const childId = await AsyncStorage.getItem(`childId-${token}`); // Retrieve stored child ID
 
     if (!childId) throw new Error("Child ID not found");
 
-    const difficultyLevel = await startMatchAndSortGameSession(); // Get difficulty level
+    const difficultyLevel = await startSocialScenarioGameSession(); // Get difficulty level
 
     const response = await fetch(
-      `${API_URL}children/${childId}/match-and-sort/${difficultyLevel}/`,
+      `${API_URL}children/${childId}/social-scenario-batch/${difficultyLevel}/3/`, // Fetch 3 scenarios
       {
         method: "GET",
         headers: {
@@ -60,14 +60,14 @@ export const fetchMatchAndSortGameAssets = async () => {
     );
 
     const data = await response.json();
-    console.log("Match And Sort Game Assets:", data);
+    console.log("Social Scenarios Found:", data.session_created);
     return data;
   } catch (error) {
-    console.error("Error fetching game assets:", error);
+    console.error("Error fetching social scenarios:", error);
   }
 };
 
-export const endMatchAndSortGameSession = async (
+export const endSocialScenarioGameSession = async (
   correctAnswers: number,
   incorrectAnswers: number,
 ) => {
@@ -93,9 +93,9 @@ export const endMatchAndSortGameSession = async (
     });
 
     const data = await response.json();
-    console.log("Match And Sort Session Started:", data);
+    console.log("Social Scenario Game Session Ended:", data);
     return data;
   } catch (error) {
-    console.error("Error starting game session:", error);
+    console.error("Error ending game session:", error);
   }
 };
