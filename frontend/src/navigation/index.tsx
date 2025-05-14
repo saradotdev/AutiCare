@@ -2,7 +2,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "../types";
 import {
+  About,
+  Account,
   AgePicker,
+  ChildProfiles,
   ChildTest,
   ForgotPassword,
   GenderSelector,
@@ -12,11 +15,15 @@ import {
   InputEmail,
   InputPassword,
   MatchAndSort,
+  Notifications,
+  PrivacyPolicy,
+  Report,
   ResetPassword,
   SetGoal,
   SignIn,
   SocialScenario,
   SpeechLevel,
+  TermsOfService,
   VerificationCode,
   Welcome,
   WordSpeech,
@@ -47,6 +54,15 @@ export const Navigation = () => (
       {/* Main Flow */}
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Guardian" component={Guardian} />
+      <Stack.Screen name="Report" component={Report} />
+
+      {/* Settings Flow */}
+      <Stack.Screen name="Account" component={Account} />
+      <Stack.Screen name="Notifications" component={Notifications} />
+      <Stack.Screen name="ChildProfiles" component={ChildProfiles} />
+      <Stack.Screen name="About" component={About} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+      <Stack.Screen name="TermsOfService" component={TermsOfService} />
 
       {/* Games */}
       <Stack.Screen name="GuessExpression" component={GuessExpression} />

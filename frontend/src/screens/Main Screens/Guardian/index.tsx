@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Summary, Settings } from "../../../screens";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import theme from "../../../../theme";
+import Summary from "../Summary";
+import Settings from "../Settings";
+import { useBackgroundMusic } from "../../../hooks";
 
 const Tab = createBottomTabNavigator();
 
 export default function Guardian() {
+  const { stopMusic } = useBackgroundMusic();
+
+  useEffect(() => {
+    stopMusic();
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={{

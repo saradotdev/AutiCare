@@ -21,6 +21,7 @@ export default function SignIn() {
       const response = await loginUser(email, password);
       console.log(response);
       setIsLoggedIn(true);
+
       navigation.reset({
         index: 0,
         routes: [{ name: "Home" }],
