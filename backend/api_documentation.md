@@ -570,3 +570,335 @@ curl -X GET http://localhost:8000/api/children/1/progress/MATCHSORT/ -H "Authori
 5. Difficulty levels decrease when:
    - Child performs below 40% correct answers
    - Poor performance occurs for 2 consecutive sessions 
+
+## Game Analysis Endpoints
+
+### Get Game Analysis for a Specific Game
+
+Get detailed analysis of a child's performance in a specific game, including strengths, weaknesses, and improvements.
+
+**URL**: `/api/children/{child_id}/analysis/{game_code}/`
+
+**Method**: `GET`
+
+**Authentication Required**: Yes (JWT Token)
+
+**Query Parameters**:
+- `period`: Time period for analysis (`day`, `week`, or `month`). Default is `day`.
+- `force_refresh`: Whether to force regeneration of analysis even if a recent one exists (`true` or `false`). Default is `false`.
+
+**Success Response**:
+
+```json
+{
+  "id": 1,
+  "child_id": 3,
+  "child_name": "John Smith",
+  "game_type": {
+    "id": 2,
+    "name": "Match and Sort",
+    "code": "MATCHSORT"
+  },
+  "period": "day",
+  "start_date": "2025-05-11",
+  "end_date": "2025-05-11",
+  "performance": {
+    "total_sessions": 5,
+    "correct_answers": 42,
+    "incorrect_answers": 8,
+    "average_score": 84.0,
+    "total_time_spent": 1200,
+    "average_time_per_session": 240.0
+  },
+  "improvement": {
+    "score_change": 12.5,
+    "time_change": -8.3
+  },
+  "strengths": [
+    {
+      "area": "accuracy",
+      "description": "High accuracy in answering questions",
+      "score": 84.0
+    },
+    {
+      "area": "speed",
+      "description": "Fast response time",
+      "score": 4.2
+    }
+  ],
+  "weaknesses": [],
+  "improvements": [
+    {
+      "area": "accuracy",
+      "description": "Significant improvement in accuracy",
+      "change": 12.5
+    },
+    {
+      "area": "speed",
+      "description": "Faster response time",
+      "change": -8.3
+    }
+  ],
+  "created_at": "2025-05-11T14:30:45.123456Z"
+}
+```
+
+### Get Analysis for All Games
+
+Get analysis for all games a child has played.
+
+**URL**: `/api/children/{child_id}/analysis/`
+
+**Method**: `GET`
+
+**Authentication Required**: Yes (JWT Token)
+
+**Query Parameters**:
+- `period`: Time period for analysis (`day`, `week`, or `month`). Default is `day`.
+- `force_refresh`: Whether to force regeneration of analyses (`true` or `false`). Default is `false`.
+
+**Success Response**:
+
+```json
+[
+  {
+    "id": 1,
+    "child_id": 3,
+    "child_name": "John Smith",
+    "game_type": {
+      "id": 1,
+      "name": "Facial Expressions",
+      "code": "FACIAL"
+    },
+    "period": "day",
+    "start_date": "2025-05-11",
+    "end_date": "2025-05-11",
+    "performance": {
+      "total_sessions": 3,
+      "correct_answers": 18,
+      "incorrect_answers": 7,
+      "average_score": 72.0,
+      "total_time_spent": 600,
+      "average_time_per_session": 200.0
+    },
+    "improvement": {
+      "score_change": 8.0,
+      "time_change": -5.2
+    },
+    "strengths": [
+      {
+        "area": "accuracy",
+        "description": "High accuracy in answering questions",
+        "score": 72.0
+      }
+    ],
+    "weaknesses": [],
+    "improvements": [
+      {
+        "area": "speed",
+        "description": "Faster response time",
+        "change": -5.2
+      }
+    ],
+    "created_at": "2025-05-11T14:30:45.123456Z"
+  },
+  {
+    "id": 2,
+    "child_id": 3,
+    "child_name": "John Smith",
+    "game_type": {
+      "id": 2,
+      "name": "Match and Sort",
+      "code": "MATCHSORT"
+    },
+    "period": "day",
+    "start_date": "2025-05-11",
+    "end_date": "2025-05-11",
+    "performance": {
+      "total_sessions": 5,
+      "correct_answers": 42,
+      "incorrect_answers": 8,
+      "average_score": 84.0,
+      "total_time_spent": 1200,
+      "average_time_per_session": 240.0
+    },
+    "improvement": {
+      "score_change": 12.5,
+      "time_change": -8.3
+    },
+    "strengths": [
+      {
+        "area": "accuracy",
+        "description": "High accuracy in answering questions",
+        "score": 84.0
+      },
+      {
+        "area": "speed",
+        "description": "Fast response time",
+        "score": 4.2
+      }
+    ],
+    "weaknesses": [],
+    "improvements": [
+      {
+        "area": "accuracy",
+        "description": "Significant improvement in accuracy",
+        "change": 12.5
+      },
+      {
+        "area": "speed",
+        "description": "Faster response time",
+        "change": -8.3
+      }
+    ],
+    "created_at": "2025-05-11T14:30:45.123456Z"
+  }
+]
+```
+
+### Get Improvement Trends
+
+Get comprehensive improvement trends for a child across all games and time periods.
+
+**URL**: `/api/children/{child_id}/trends/`
+
+**Method**: `GET`
+
+**Authentication Required**: Yes (JWT Token)
+
+**Success Response**:
+
+```json
+{
+  "child_id": 3,
+  "child_name": "John Smith",
+  "trends": {
+    "FACIAL": {
+      "name": "Facial Expressions",
+      "code": "FACIAL",
+      "periods": {
+        "day": {
+          "average_score": 72.0,
+          "score_change": 8.0,
+          "total_sessions": 3,
+          "strengths": [
+            {
+              "area": "accuracy",
+              "description": "High accuracy in answering questions",
+              "score": 72.0
+            }
+          ],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "speed",
+              "description": "Faster response time",
+              "change": -5.2
+            }
+          ]
+        },
+        "week": {
+          "average_score": 68.5,
+          "score_change": 12.5,
+          "total_sessions": 15,
+          "strengths": [
+            {
+              "area": "accuracy",
+              "description": "High accuracy in answering questions",
+              "score": 68.5
+            }
+          ],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "accuracy",
+              "description": "Significant improvement in accuracy",
+              "change": 12.5
+            }
+          ]
+        },
+        "month": {
+          "average_score": 65.0,
+          "score_change": 15.0,
+          "total_sessions": 42,
+          "strengths": [],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "accuracy",
+              "description": "Significant improvement in accuracy",
+              "change": 15.0
+            }
+          ]
+        }
+      }
+    },
+    "MATCHSORT": {
+      "name": "Match and Sort",
+      "code": "MATCHSORT",
+      "periods": {
+        "day": {
+          "average_score": 84.0,
+          "score_change": 12.5,
+          "total_sessions": 5,
+          "strengths": [
+            {
+              "area": "accuracy",
+              "description": "High accuracy in answering questions",
+              "score": 84.0
+            }
+          ],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "accuracy",
+              "description": "Significant improvement in accuracy",
+              "change": 12.5
+            }
+          ]
+        },
+        "week": {
+          "average_score": 78.3,
+          "score_change": 10.2,
+          "total_sessions": 22,
+          "strengths": [
+            {
+              "area": "accuracy",
+              "description": "High accuracy in answering questions",
+              "score": 78.3
+            }
+          ],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "accuracy",
+              "description": "Significant improvement in accuracy",
+              "change": 10.2
+            }
+          ]
+        },
+        "month": {
+          "average_score": 72.5,
+          "score_change": 18.3,
+          "total_sessions": 58,
+          "strengths": [
+            {
+              "area": "accuracy",
+              "description": "High accuracy in answering questions",
+              "score": 72.5
+            }
+          ],
+          "weaknesses": [],
+          "improvements": [
+            {
+              "area": "accuracy",
+              "description": "Significant improvement in accuracy",
+              "change": 18.3
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+``` 
