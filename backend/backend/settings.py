@@ -87,13 +87,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'auticaretest_db',
-        'USER': 'postgres',      # Default PostgreSQL username
-        'PASSWORD': 'auticare123', # Replace with your PostgreSQL password
-        'HOST': 'localhost',
+        'NAME': 'auticare_db',
+        'USER': 'auticare_db_user',
+        'PASSWORD': 'vAyZLDYQLiOfdS5AY71V7qsKjS5Ctseg',
+        'HOST': 'dpg-d0i812d6ubrc73d8tek0-a.singapore-postgres.render.com',
         'PORT': '5432',
     }
 }
+
 
 
 # Password validation

@@ -14,6 +14,9 @@ from activities.views import (
     get_game_progress, start_game_session, end_game_session,
     get_child_sessions, get_all_progress
 )
+from reports.views import (
+    get_game_analysis, get_all_game_analysis, get_improvement_trends
+)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -63,6 +66,11 @@ urlpatterns = [
     path('api/children/<int:child_id>/start-session/<str:game_code>/', start_game_session, name='start_game_session'),
     path('api/sessions/<int:session_id>/end/', end_game_session, name='end_game_session'),
     path('api/children/<int:child_id>/sessions/', get_child_sessions, name='get_child_sessions'),
+    
+    # Game Analysis endpoints
+    path('api/children/<int:child_id>/analysis/<str:game_code>/', get_game_analysis, name='get_game_analysis'),
+    path('api/children/<int:child_id>/analysis/', get_all_game_analysis, name='get_all_game_analysis'),
+    path('api/children/<int:child_id>/trends/', get_improvement_trends, name='get_improvement_trends'),
 ]
 
 # Add URL patterns for serving media files in development

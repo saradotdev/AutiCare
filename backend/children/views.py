@@ -330,7 +330,7 @@ def _get_images_response(request, config, valid_expressions):
     """
     num_images = config.get('num_images', 5)
     age_group = config.get('age_group')
-    expressions = config.get('expressions', ['happy', 'sad'])
+    expressions = config.get('expression_types', ['happy', 'sad'])
     
     # Get a list of available expression images
     all_images = []
