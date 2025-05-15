@@ -10,6 +10,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   color,
   Image,
   onPress,
+  disabled = false,
 }) => {
   return (
     <TouchableOpacity
@@ -19,7 +20,11 @@ export const GameCard: React.FC<GameCardProps> = ({
     >
       <Image />
       <View style={styles.row}>
-        <FontAwesome6 name="circle-play" size={42} color={theme.colorWhite} />
+        <FontAwesome6
+          name={disabled ? "lock" : "circle-play"}
+          size={42}
+          color={theme.colorWhite}
+        />
         <MyText style={styles.text}>{title}</MyText>
       </View>
     </TouchableOpacity>

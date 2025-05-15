@@ -19,28 +19,24 @@ export const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
+  },
   safeArea: {
     flex: 1,
   },
   header: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  backButton: {
-    padding: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colorWhite,
     justifyContent: "center",
-    alignItems: "center",
   },
   title: {
-    fontSize: 32,
-    fontFamily: theme.poppinsRegular,
+    fontSize: 40,
+    fontFamily: theme.comicSansMS,
     color: "#F5B94E",
     textAlign: "center",
   },
@@ -84,7 +80,7 @@ export const styles = StyleSheet.create({
   },
   levelText: {
     color: theme.colorWhite,
-    fontSize: 24,
-    fontFamily: theme.poppinsRegular,
+    fontSize: 40,
+    fontFamily: theme.comicSansMS,
   },
 });
