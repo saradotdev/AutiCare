@@ -5,6 +5,7 @@ export interface GameCardProps {
   color: string;
   Image: React.FC;
   onPress: () => void;
+  disabled?: boolean;
 }
 
 export type GameAppBarProps = {

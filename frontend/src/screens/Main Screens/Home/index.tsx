@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   ActivityIndicator,
@@ -10,15 +10,16 @@ import {
 import { styles } from "./index.styles";
 import { fetchData } from "../../../api/childrenApi";
 import theme from "../../../../theme";
-import { GameCard, MyButton, MyText } from "../../../components";
+import { GameCard, MyButton, MyModal, MyText } from "../../../components";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { GameCard1, GameCard2 } from "../../../assets";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../../types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Game } from "../../../types";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useBackgroundMusic, useSessionTracker } from "../../../hooks";
+import { useTimeLimit } from "../../../context";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
@@ -65,13 +66,28 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Game[]>([]);
-
   const [modalVisible, setModalVisible] = useState(false);
+  const [lockedModalVisible, setLockedModalVisible] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const [isTimeExceeded, setIsTimeExceeded] = useState(false);
+  const [calculatingTime, setCalculatingTime] = useState(true);
+
+  const { checkIfTimeExceeded } = useTimeLimit();
   const { playMusic } = useBackgroundMusic();
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        const timeExceeded = await checkIfTimeExceeded();
+        setIsTimeExceeded(timeExceeded);
+        setCalculatingTime(false);
+      };
+      loadData();
+    }, [checkIfTimeExceeded]),
+  );
 
   useEffect(() => {
     playMusic();
@@ -147,25 +163,39 @@ export default function Home() {
         <MyText>Guardian</MyText>
       </MyButton>
 
-      {loading ? (
+      {calculatingTime || loading ? (
         <View style={styles.loader}>
           <ActivityIndicator size="large" color={theme.colorSummerSky} />
         </View>
       ) : (
         <FlatList
-          data={loading ? [] : data} // Pass empty array while loading
+          data={data}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <GameCard
               title={item.title}
               color={item.color}
               Image={item.Image}
-              onPress={() => navigation.navigate(item.screen as never)}
+              onPress={() => {
+                if (!isTimeExceeded) {
+                  navigation.navigate(item.screen as never);
+                } else {
+                  setLockedModalVisible(true);
+                  setTimeout(() => setLockedModalVisible(false), 2000);
+                }
+              }}
+              disabled={isTimeExceeded}
             />
           )}
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <MyModal
+        visible={lockedModalVisible}
+        text="All done for today!! 🥳"
+        onClose={() => setLockedModalVisible(false)}
+      ></MyModal>
 
       <Modal transparent visible={modalVisible} animationType="slide">
         <View style={styles.modalBackground}>

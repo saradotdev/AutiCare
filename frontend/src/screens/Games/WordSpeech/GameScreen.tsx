@@ -9,14 +9,12 @@ import {
   Dimensions,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { MaterialIcons } from "@expo/vector-icons";
 import theme from "../../../../theme";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { MyModal } from "../../../components";
-
-// Import the SVGs
+import { GameAppBar, MyModal } from "../../../components";
 import KidSvg from "../../../assets/images/games/WordSpeech/Kid.svg";
 import WordBgSvg from "../../../assets/images/games/WordSpeech/WordBg.svg";
+import { gameInstructions } from "./instructionsData";
 
 const { width, height } = Dimensions.get("window");
 
@@ -79,15 +77,10 @@ const GameScreen = () => {
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
       >
+        <View style={styles.overlay}></View>
+        <GameAppBar title="Word Speech" instructions={gameInstructions} />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={goBack} style={styles.backButton}>
-              <MaterialIcons
-                name="arrow-back"
-                size={24}
-                color={theme.colorSummerSky}
-              />
-            </TouchableOpacity>
             <Text style={styles.title}>Level {level}</Text>
             <View style={{ width: 30 }} />
           </View>
@@ -150,28 +143,25 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
+  },
   safeArea: {
     flex: 1,
   },
   header: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  backButton: {
-    padding: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colorWhite,
     justifyContent: "center",
-    alignItems: "center",
   },
   title: {
-    fontSize: 28,
-    fontFamily: theme.poppinsRegular,
+    fontSize: 40,
+    fontFamily: theme.comicSansMS,
     color: "#F5B94E",
     textAlign: "center",
   },
@@ -182,8 +172,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   promptText: {
-    fontSize: 32,
-    fontFamily: theme.poppinsBold,
+    fontSize: 38,
+    fontFamily: theme.comicSansMS,
     color: "#F5B94E",
     marginTop: 10,
     marginBottom: 20,
@@ -203,27 +193,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
+    top: -50,
   },
   wordText: {
     position: "absolute",
-    fontSize: 32,
-    fontFamily: theme.poppinsBold,
-    color: theme.colorCharcoal,
+    fontSize: 38,
+    fontFamily: theme.comicSansMS,
+    color: theme.colorNavyBlue,
     textAlign: "center",
   },
   nextButton: {
     backgroundColor: theme.colorSummerSky,
-    paddingVertical: 12,
+    paddingVertical: 5,
     paddingHorizontal: 30,
-    borderRadius: 25,
+    borderRadius: 12,
     marginBottom: 30,
     width: "90%",
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: theme.colorWhite,
   },
   nextButtonText: {
     color: theme.colorWhite,
-    fontSize: 22,
-    fontFamily: theme.poppinsBold,
+    fontSize: 30,
+    fontFamily: theme.comicSansMS,
   },
 });
 

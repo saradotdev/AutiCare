@@ -11,6 +11,7 @@ const theme = {
   colorDarkOrange: "rgba(255, 137, 77, 1)",
   colorSummerSky: "rgba(55, 178, 255, 1)",
   colorDarkSummerSky: "rgba(22, 147, 226, 1)",
+  colorNavyBlue: "rgba(60, 137, 229, 1)",
   colorBlue: "rgba(94, 121, 255, 1)",
   colorDarkBlue: "rgba(51, 82, 235, 1)",
   colorGreen: "rgba(91, 201, 55, 1)",
