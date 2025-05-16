@@ -3,7 +3,7 @@ import { RootStackParamList } from "./navigation.types";
 export interface GameCardProps {
   title: string;
   color: string;
-  Image: React.FC;
+  Image: React.FC | any;
   onPress: () => void;
   disabled?: boolean;
 }

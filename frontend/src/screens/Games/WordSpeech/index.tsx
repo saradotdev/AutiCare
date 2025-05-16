@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { LevelButtonProps, RootStackParamList } from "../../../types";
 import { GameAppBar } from "../../../components";
 import { gameInstructions } from "./instructionsData";
+import { Audio } from "expo-av";
 
 const { width, height } = Dimensions.get("window");
 
@@ -43,6 +44,10 @@ const LevelButton: React.FC<LevelButtonProps> = ({
 const WordSpeechLevelsScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+  useEffect(() => {
+    playSound();
+  }, []);
+
   const handleLevelPress = (level: number) => {
     // Navigate to the game screen with the selected level
     navigation.navigate("WordSpeechGame", { level });
@@ -65,6 +70,24 @@ const WordSpeechLevelsScreen = () => {
 
   // Calculate the total content height to ensure scrolling works properly
   const contentHeight = height; // Make it a bit taller than screen height
+
+  /* Load and play sound for prompt correct guess */
+  const playSound = async () => {
+    const file = require("../../../assets/voice commands/Lets begin.wav");
+    const soundObject = new Audio.Sound();
+    try {
+      await soundObject.loadAsync(file);
+      await soundObject.playAsync();
+
+      soundObject.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          soundObject.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.log("Error playing sound:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>

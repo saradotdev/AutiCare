@@ -18,6 +18,7 @@ import {
 import { SocialScenario } from "../../../types";
 import theme from "../../../../theme";
 import { gameInstructions } from "./instructionsData";
+import { Audio } from "expo-av";
 
 const gameBg = require("../../../assets/images/GameBackground.png");
 
@@ -57,7 +58,10 @@ export default function SocialScenarioGame() {
       }, 3000);
       return () => clearTimeout(timeout);
     } else {
-      const timeout = setTimeout(() => setShowOptions(true), 3000);
+      const timeout = setTimeout(() => {
+        setShowOptions(true);
+        playSound("prompt");
+      }, 3000);
       return () => clearTimeout(timeout);
     }
   }, [currentDialogueIndex, currentScenario]);
@@ -73,12 +77,14 @@ export default function SocialScenarioGame() {
   const handleGuess = (option: any) => {
     const isCorrect = option.is_correct;
     if (isCorrect) {
+      playSound("correct");
       setCorrectCount((prev) => {
         correctRef.current = prev + 1;
         return prev + 1;
       });
       showModal("Good job!!\nCorrect", true);
     } else {
+      playSound("incorrect");
       setIncorrectCount((prev) => {
         incorrectRef.current = prev + 1;
         return prev + 1;
@@ -105,6 +111,38 @@ export default function SocialScenarioGame() {
   // Alternate bubbles: even index = left, odd = right
   const BubbleComponent =
     currentDialogueIndex % 2 === 0 ? Images.BubbleLeft : Images.BubbleRight;
+
+  /** Load and play sound for correct, incorrect, or prompt feedback */
+  const playSound = async (type: "correct" | "incorrect" | "prompt") => {
+    const files =
+      type === "correct"
+        ? [
+            require("../../../assets/sounds/correct.mp3"),
+            require("../../../assets/voice commands/Good job.wav"),
+          ]
+        : type === "incorrect"
+          ? [
+              require("../../../assets/sounds/incorrect.mp3"),
+              require("../../../assets/voice commands/Try again.wav"),
+            ]
+          : [require("../../../assets/voice commands/What should you do.wav")];
+
+    for (const file of files) {
+      const soundObject = new Audio.Sound();
+      try {
+        await soundObject.loadAsync(file);
+        await soundObject.playAsync();
+
+        soundObject.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            soundObject.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Error playing sound:", error);
+      }
+    }
+  };
 
   return (
     <ImageBackground source={gameBg} style={styles.container}>

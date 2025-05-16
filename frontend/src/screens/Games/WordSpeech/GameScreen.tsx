@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { GameAppBar, MyModal } from "../../../components";
 import KidSvg from "../../../assets/images/games/WordSpeech/Kid.svg";
 import WordBgSvg from "../../../assets/images/games/WordSpeech/WordBg.svg";
 import { gameInstructions } from "./instructionsData";
+import { Audio } from "expo-av";
 
 const { width, height } = Dimensions.get("window");
 
@@ -41,9 +42,14 @@ const GameScreen = () => {
   const words = levelWords[level] || ["EAT"];
   const currentWord = words[currentWordIndex];
 
+  useEffect(() => {
+    playSound("prompt");
+  }, []);
+
   const handleNext = () => {
     // Show the success banner
     showSuccessBanner();
+    playSound("correct");
   };
 
   const showSuccessBanner = () => {
@@ -66,8 +72,30 @@ const GameScreen = () => {
     }
   };
 
-  const goBack = () => {
-    navigation.goBack();
+  /* Load and play sound for prompt correct guess */
+  const playSound = async (type: "correct" | "prompt") => {
+    const files =
+      type === "correct"
+        ? [
+            require("../../../assets/sounds/correct.mp3"),
+            require("../../../assets/voice commands/Good job.wav"),
+          ]
+        : [require("../../../assets/voice commands/Can you say.wav")];
+    for (const file of files) {
+      const soundObject = new Audio.Sound();
+      try {
+        await soundObject.loadAsync(file);
+        await soundObject.playAsync();
+
+        soundObject.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            soundObject.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Error playing sound:", error);
+      }
+    }
   };
 
   return (

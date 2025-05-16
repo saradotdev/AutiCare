@@ -49,7 +49,7 @@ export const fetchMatchAndSortGameAssets = async () => {
     const difficultyLevel = await startMatchAndSortGameSession(); // Get difficulty level
 
     const response = await fetch(
-      `${API_URL}children/${childId}/match-and-sort/${difficultyLevel}/`,
+      `${API_URL}children/${childId}/match-and-sort/3/`,
       {
         method: "GET",
         headers: {

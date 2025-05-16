@@ -18,6 +18,7 @@ import {
   fetchFacialExpressions,
 } from "../../../api/facialExpressionsGameApi";
 import { SvgXml } from "react-native-svg";
+import { Audio } from "expo-av";
 
 const gameBg = require("../../../assets/images/games/Guess The Expression/Background.png");
 
@@ -79,6 +80,7 @@ export default function GuessExpression() {
       setGameInstructions(instructions);
 
       setIsLoading(false);
+      playSound("prompt");
     };
 
     initializeGame();
@@ -176,6 +178,7 @@ export default function GuessExpression() {
     animateButton(guess);
 
     if (guess === currentExpression?.name) {
+      playSound("correct");
       setCorrectCount((prev) => {
         correctRef.current = prev + 1;
         return prev + 1;
@@ -183,6 +186,7 @@ export default function GuessExpression() {
       showModal("Yay!!\nExcellent", true);
       setTimeout(() => moveToNextExpression(), 2000);
     } else {
+      playSound("incorrect");
       setIncorrectCount((prev) => {
         incorrectRef.current = prev + 1;
         return prev + 1;
@@ -194,6 +198,7 @@ export default function GuessExpression() {
   /* Handle guess for age group 9-12 */
   const handleOlderAgeGroupGuess = (isCorrect: boolean) => {
     if (isCorrect) {
+      playSound("correct");
       setCorrectCount((prev) => {
         correctRef.current = prev + 1;
         return prev + 1;
@@ -201,6 +206,7 @@ export default function GuessExpression() {
       showModal("Yay!!\nExcellent", true);
       setTimeout(() => moveToNextImageSet(), 2000);
     } else {
+      playSound("incorrect");
       setIncorrectCount((prev) => {
         incorrectRef.current = prev + 1;
         return prev + 1;
@@ -251,6 +257,40 @@ export default function GuessExpression() {
       setCurrentIndex((prev) => prev + 1);
       setCurrentType(imagesData[currentIndex + 1].name);
       setCurrentOptions(imagesData[currentIndex + 1].images);
+    }
+  };
+
+  /** Load and play sound for correct, incorrect, or prompt feedback */
+  const playSound = async (type: "correct" | "incorrect" | "prompt") => {
+    const files =
+      type === "correct"
+        ? [
+            require("../../../assets/sounds/correct.mp3"),
+            require("../../../assets/voice commands/Good job.wav"),
+          ]
+        : type === "incorrect"
+          ? [
+              require("../../../assets/sounds/incorrect.mp3"),
+              require("../../../assets/voice commands/Try again.wav"),
+            ]
+          : [
+              require("../../../assets/voice commands/Guess the expression.wav"),
+            ];
+
+    for (const file of files) {
+      const soundObject = new Audio.Sound();
+      try {
+        await soundObject.loadAsync(file);
+        await soundObject.playAsync();
+
+        soundObject.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            soundObject.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Error playing sound:", error);
+      }
     }
   };
 

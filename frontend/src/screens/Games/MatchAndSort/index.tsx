@@ -19,6 +19,7 @@ import { SvgXml } from "react-native-svg";
 import { Bucket, FallingObject } from "../../../types";
 import theme from "../../../../theme";
 import { getMatchAndSortGameInstructions } from "./instructionsData";
+import { Audio } from "expo-av";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -108,6 +109,7 @@ export default function MatchAndSort() {
         totalObjects.current = data.falling_objects.length;
 
         setIsLoading(false);
+        playSound("prompt");
       }
     };
 
@@ -174,6 +176,7 @@ export default function MatchAndSort() {
     setBuckets(enrichedBuckets);
     setFallingObjects(set.falling_objects);
     setIsLoading(false);
+    playSound("prompt");
   };
 
   const fetchSvgCache = async (items: { id: string; image_url: string }[]) => {
@@ -244,6 +247,9 @@ export default function MatchAndSort() {
 
       if (isInsideBucket) {
         setScore((prevScore) => prevScore + 1);
+        playSound("correct");
+      } else {
+        playSound("incorrect");
       }
     }
 
@@ -270,6 +276,38 @@ export default function MatchAndSort() {
       },
     }),
   ).current;
+
+  /** Load and play sound for correct, incorrect, or prompt feedback */
+  const playSound = async (type: "correct" | "incorrect" | "prompt") => {
+    const files =
+      type === "correct"
+        ? [
+            require("../../../assets/sounds/correct.mp3"),
+            require("../../../assets/voice commands/Good job.wav"),
+          ]
+        : type === "incorrect"
+          ? [
+              require("../../../assets/sounds/incorrect.mp3"),
+              require("../../../assets/voice commands/Try again.wav"),
+            ]
+          : [require("../../../assets/voice commands/Swipe the object.wav")];
+
+    for (const file of files) {
+      const soundObject = new Audio.Sound();
+      try {
+        await soundObject.loadAsync(file);
+        await soundObject.playAsync();
+
+        soundObject.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            soundObject.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Error playing sound:", error);
+      }
+    }
+  };
 
   const currentObject = fallingObjects[currentIndex];
 
