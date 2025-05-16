@@ -20,6 +20,7 @@ import { Game } from "../../../types";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useBackgroundMusic, useSessionTracker } from "../../../hooks";
 import { useTimeLimit } from "../../../context";
+import { Audio } from "expo-av";
 
 const homeBg = require("../../../assets/images/HomeBackground.png");
 
@@ -147,6 +148,30 @@ export default function Home() {
     }
   };
 
+  /** Load and play sound for correct, incorrect, or prompt feedback */
+  const playSound = async (type: "guardian" | "timeUp") => {
+    const files =
+      type === "guardian"
+        ? [require("../../../assets/voice commands/Grown ups only.wav")]
+        : [require("../../../assets/voice commands/All done for today.wav")];
+
+    for (const file of files) {
+      const soundObject = new Audio.Sound();
+      try {
+        await soundObject.loadAsync(file);
+        await soundObject.playAsync();
+
+        soundObject.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            soundObject.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Error playing sound:", error);
+      }
+    }
+  };
+
   return (
     <ImageBackground source={homeBg} style={styles.container}>
       <MyButton
@@ -158,6 +183,7 @@ export default function Home() {
           setGeneratedCode(random);
           setPinInput("");
           setModalVisible(true);
+          playSound("guardian");
         }}
       >
         <MyText>Guardian</MyText>
@@ -181,6 +207,7 @@ export default function Home() {
                   navigation.navigate(item.screen as never);
                 } else {
                   setLockedModalVisible(true);
+                  playSound("timeUp");
                   setTimeout(() => setLockedModalVisible(false), 2000);
                 }
               }}
