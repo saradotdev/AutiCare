@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,10 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zv(c)5n1%eo9p&(&$wqz#j4wory=-$vdrg4y^6ni@z0sr5uuh)'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-zv(c)5n1%eo9p&(&$wqz#j4wory=-$vdrg4y^6ni@z0sr5uuh)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', True)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -87,14 +91,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'auticare_db',
-        'USER': 'auticare_db_user',
-        'PASSWORD': 'vAyZLDYQLiOfdS5AY71V7qsKjS5Ctseg',
-        'HOST': 'dpg-d0i812d6ubrc73d8tek0-a.singapore-postgres.render.com',
-        'PORT': '5432',
+        'NAME': os.getenv('NAME', 'postgres'),
+        'USER': os.getenv('USER'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'HOST': os.getenv('HOST'),
+        'PORT': os.getenv('PORT', '5432'),
     }
 }
-
 
 
 # Password validation
